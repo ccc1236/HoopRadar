@@ -35,9 +35,11 @@ These all slot into the Options page once it exists. Worth scoping together duri
 
 - Shows two things per axis: the player's rank within the ranked population, and the league average for that stat. Both already exist at spider-build time: `buildPercentileTable` sorts the full league and `fetchMergedForWindow` returns every row, so the SW just needs to expose rank + n and compute the mean. No new nba.com endpoint.
 - Rank and league average use the *same* `rows` population the percentiles already rank against, so the three numbers stay consistent.
+- The popout reflects the page's active advanced-stat setting (window + perMode), one period at a time, not all three windows at once. If the user changes the filter (e.g. L5 + Per36), the rank and average update to match. Implementation note: the SW already fetches all three windows when building the spider, so a window change is a client-side switch (no refetch); only a perMode change needs a refetch (counting stats scale, ratios do not).
 - Recent game log is explicitly out of scope. It would require a new `playergamelog` endpoint integration (fetch, parse, cache, bot-detection re-verification) for limited payoff.
 - Interaction is click, not hover, so it does not fight the tooltip's existing hover-to-open / click-to-pin model. Likely only while the card is pinned.
 - The SVG axis labels are tiny click targets; will need invisible per-axis hit areas.
+- Placement: a fixed detail strip at the bottom of the card (not an anchored callout). It appears on axis click and the card grows by one row. The clicked axis is highlighted (brighten its spoke/label) so the spatial link to the strip is clear. Chosen over an anchored callout because the 9-axis ring makes per-axis callouts cramped and collision-prone.
 
 ## Deferred indefinitely
 
