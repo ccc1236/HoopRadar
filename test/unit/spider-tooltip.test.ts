@@ -135,6 +135,22 @@ describe("spider tooltip controller", () => {
     });
   });
 
+  it("ignores the note-icon anchor (same data-ys-playerid, /news href)", () => {
+    const note = document.createElement("a");
+    note.setAttribute("data-ys-playerid", "5583");
+    note.setAttribute("href", "https://sports.yahoo.com/nba/players/5583/news");
+    note.textContent = "note";
+    row.anchor.closest("td")!.appendChild(note);
+
+    note.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+    vi.advanceTimersByTime(300);
+    expect(document.querySelector(".fnba-spider-host")).toBeNull();
+
+    const ev = new MouseEvent("click", { bubbles: true, cancelable: true });
+    note.dispatchEvent(ev);
+    expect(ev.defaultPrevented).toBe(false);
+  });
+
   it("does not dismiss a pinned card when clicking inside a safeArea element", async () => {
     controller.teardown();
     const safe = document.createElement("div");

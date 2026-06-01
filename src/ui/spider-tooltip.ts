@@ -83,7 +83,14 @@ export function createSpiderTooltipController(deps: SpiderTooltipDeps): SpiderTo
 
   function anchorFromEvent(e: Event): HTMLAnchorElement | null {
     const t = e.target as Element | null;
-    return t?.closest<HTMLAnchorElement>("a[data-ys-playerid]") ?? null;
+    const a = t?.closest<HTMLAnchorElement>("a[data-ys-playerid]") ?? null;
+    if (!a) return null;
+    // Yahoo renders two anchors per player sharing data-ys-playerid: the name
+    // link (/nba/players/<id>) and the note/news icon (/nba/players/<id>/news).
+    // Only the name link should trigger the spider; the note icon opens Yahoo's
+    // own latest-news popup.
+    if (/\/news(?:[/?#]|$)/.test(a.getAttribute("href") ?? "")) return null;
+    return a;
   }
 
   function mount(anchor: HTMLAnchorElement, pinned: boolean): void {

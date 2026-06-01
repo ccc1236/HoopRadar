@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.0.13 - 2026-06-01
+
+- Fixed the spider tooltip triggering when hovering the news icon next to a player name. Yahoo renders two anchors per player that share the same id; the tooltip now only opens on the name link, leaving Yahoo's news popup alone.
+
 ## v0.0.12 - 2026-05-18
 
 My Team page now defers to Yahoo's live game-day numbers and only overlays nba.com data on Average Stats > current season.
