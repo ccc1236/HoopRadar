@@ -33,7 +33,7 @@ These all slot into the Options page once it exists. Worth scoping together duri
 
 ### Spider axis detail popout - scope notes
 
-- Shows two things per axis: the player's rank within the ranked population, and the league average for that stat. Both already exist at spider-build time: `buildPercentileTable` sorts the full league and `fetchMergedForWindow` returns every row, so the SW just needs to expose rank + n and compute the mean. No new nba.com endpoint.
+- Shows four fields per axis: the player's rank within the ranked population (e.g. 5th of 236), the league average, the player's own value, and the percentile (e.g. 98th). Rank and percentile are kept together on purpose: rank speaks to standings/scarcity thinkers, percentile to distribution thinkers. All four already exist at spider-build time: `buildPercentileTable` sorts the full league (rank, n, percentile) and `fetchMergedForWindow` returns every row (player value, league mean), so the SW just exposes them. No new nba.com endpoint.
 - Rank and league average use the *same* `rows` population the percentiles already rank against, so the three numbers stay consistent.
 - The popout reflects the page's active advanced-stat setting (window + perMode), one period at a time, not all three windows at once. If the user changes the filter (e.g. L5 + Per36), the rank and average update to match. Implementation note: the SW already fetches all three windows when building the spider, so a window change is a client-side switch (no refetch); only a perMode change needs a refetch (counting stats scale, ratios do not).
 - Recent game log is explicitly out of scope. It would require a new `playergamelog` endpoint integration (fetch, parse, cache, bot-detection re-verification) for limited payoff.
