@@ -9,7 +9,7 @@ For shipped releases, see [`CHANGELOG.md`](../CHANGELOG.md).
 | Item | What it does | Why it matters |
 |---|---|---|
 | **Options page** | Standalone settings page reachable from the extension toolbar. Plan 3 territory. | Unblocks four smaller items below; currently every preference is hardcoded. |
-| **Matchup page support** | Overlay on Yahoo's weekly matchup view | A second high-traffic page in roto leagues |
+| **Matchup page support** | Overlay on Yahoo's weekly matchup view | A second high-traffic page in head-to-head leagues (roto leagues have no matchup view) |
 | **Injury / status alerts** | Inline icon on player rows showing injury status, G-League assignment, etc. | Source TBD: nba.com's `commonallplayers.ROSTERSTATUS` is most stable; FantasyLabs / Twitter scraping is fragile, the X API is paywalled. |
 
 ## Options page sub-items
@@ -29,7 +29,15 @@ These all slot into the Options page once it exists. Worth scoping together duri
 
 | Item | What it does | Status |
 |---|---|---|
-| Spider axis-hover detail popout | Click an axis to see player rank, league average, and the recent game log for that stat | Idea only |
+| Spider axis detail popout | Click an axis to see the player's rank (e.g. 12th of 240) and the league average for that stat | Scoped, not started |
+
+### Spider axis detail popout - scope notes
+
+- Shows two things per axis: the player's rank within the ranked population, and the league average for that stat. Both already exist at spider-build time: `buildPercentileTable` sorts the full league and `fetchMergedForWindow` returns every row, so the SW just needs to expose rank + n and compute the mean. No new nba.com endpoint.
+- Rank and league average use the *same* `rows` population the percentiles already rank against, so the three numbers stay consistent.
+- Recent game log is explicitly out of scope. It would require a new `playergamelog` endpoint integration (fetch, parse, cache, bot-detection re-verification) for limited payoff.
+- Interaction is click, not hover, so it does not fight the tooltip's existing hover-to-open / click-to-pin model. Likely only while the card is pinned.
+- The SVG axis labels are tiny click targets; will need invisible per-axis hit areas.
 
 ## Deferred indefinitely
 
