@@ -108,12 +108,47 @@ function parse(raw: RawResponse): PlayerStatRow[] {
   });
 }
 
-export async function fetchLeagueDashPlayerStats(p: LeagueDashParams): Promise<PlayerStatRow[]> {
+export interface FetchOptions {
+  /** Number of retry attempts on a transient 5xx response. Default 2. */
+  retries?: number;
+  /** Delay between retries in ms. Default 800. */
+  retryDelayMs?: number;
+}
+
+const DEFAULT_RETRIES = 2;
+const DEFAULT_RETRY_DELAY_MS = 800;
+
+const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
+
+/**
+ * Fetch one leaguedashplayerstats page.
+ *
+ * nba.com intermittently returns a 5xx (empty body) for a cold request and
+ * then serves it fine moments later. We retry 5xx a couple of times with a
+ * short backoff before surfacing UpstreamUnavailableError. 429 (rate limit)
+ * and other 4xx (deterministic) are surfaced immediately without retrying.
+ */
+export async function fetchLeagueDashPlayerStats(
+  p: LeagueDashParams,
+  opts: FetchOptions = {},
+): Promise<PlayerStatRow[]> {
   const url = buildUrl(p);
-  log.debug("fetch", url);
-  const res = await fetch(url, { method: "GET" });
-  if (res.status === 429) throw new RateLimitedError();
-  if (!res.ok) throw new UpstreamUnavailableError(res.status);
-  const json = (await res.json()) as RawResponse;
-  return parse(json);
+  const retries = opts.retries ?? DEFAULT_RETRIES;
+  const retryDelayMs = opts.retryDelayMs ?? DEFAULT_RETRY_DELAY_MS;
+
+  for (let attempt = 0; ; attempt++) {
+    log.debug("fetch", url);
+    const res = await fetch(url, { method: "GET" });
+    if (res.status === 429) throw new RateLimitedError();
+    if (res.ok) {
+      const json = (await res.json()) as RawResponse;
+      return parse(json);
+    }
+    if (res.status >= 500 && attempt < retries) {
+      log.debug("nba 5xx, retrying", res.status, `attempt ${attempt + 1}/${retries}`);
+      await sleep(retryDelayMs);
+      continue;
+    }
+    throw new UpstreamUnavailableError(res.status);
+  }
 }
