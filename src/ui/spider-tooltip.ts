@@ -53,6 +53,8 @@ const STYLES = `
   .strip .lbl { color: #9CA3AF; font-size: 11px; }
   .strip .val { font-weight: 600; }
   .strip .you { color: #F59E0B; }
+  [data-role="loading"] { animation: fnba-pulse 1.1s ease-in-out infinite; }
+  @keyframes fnba-pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 `;
 
 export interface SpiderTooltipDeps {
