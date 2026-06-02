@@ -1,6 +1,6 @@
 # Roadmap
 
-Future work for fNBA, grouped by category. The Options page is the natural next big project because it unblocks four smaller items.
+Future work for fNBA, grouped by category. The Options page is the natural next big project because it unblocks six smaller items.
 
 For shipped releases, see [`CHANGELOG.md`](../CHANGELOG.md).
 
@@ -8,7 +8,7 @@ For shipped releases, see [`CHANGELOG.md`](../CHANGELOG.md).
 
 | Item | What it does | Why it matters |
 |---|---|---|
-| **Options page** | Standalone settings page reachable from the extension toolbar. Plan 3 territory. | Unblocks four smaller items below; currently every preference is hardcoded. |
+| **Options page** | Standalone settings page reachable from the extension toolbar. Plan 3 territory. | Unblocks six smaller items below; currently every preference is hardcoded. |
 | **Matchup page support** | Overlay on Yahoo's weekly matchup view | A second high-traffic page in head-to-head leagues (roto leagues have no matchup view) |
 | **Injury / status alerts** | Inline icon on player rows showing injury status, G-League assignment, etc. | Source TBD: nba.com's `commonallplayers.ROSTERSTATUS` is most stable; FantasyLabs / Twitter scraping is fragile, the X API is paywalled. |
 
@@ -27,19 +27,7 @@ These all slot into the Options page once it exists. Worth scoping together duri
 
 ## Smaller features (independent of Options)
 
-| Item | What it does | Status |
-|---|---|---|
-| Spider axis detail popout | Click an axis to see the player's rank (e.g. 12th of 240) and the league average for that stat | Scoped, not started |
-
-### Spider axis detail popout - scope notes
-
-- Shows four fields per axis: the player's rank within the ranked population (e.g. 5th of 236), the league average, the player's own value, and the percentile (e.g. 98th). Rank and percentile are kept together on purpose: rank speaks to standings/scarcity thinkers, percentile to distribution thinkers. All four already exist at spider-build time: `buildPercentileTable` sorts the full league (rank, n, percentile) and `fetchMergedForWindow` returns every row (player value, league mean), so the SW just exposes them. No new nba.com endpoint.
-- Rank and league average use the *same* `rows` population the percentiles already rank against, so the three numbers stay consistent.
-- The popout reflects the page's active advanced-stat setting (window + perMode), one period at a time, not all three windows at once. If the user changes the filter (e.g. L5 + Per36), the rank and average update to match. Implementation note: the SW already fetches all three windows when building the spider, so a window change is a client-side switch (no refetch); only a perMode change needs a refetch (counting stats scale, ratios do not).
-- Recent game log is explicitly out of scope. It would require a new `playergamelog` endpoint integration (fetch, parse, cache, bot-detection re-verification) for limited payoff.
-- Interaction is click, not hover, so it does not fight the tooltip's existing hover-to-open / click-to-pin model. Likely only while the card is pinned.
-- The SVG axis labels are tiny click targets; will need invisible per-axis hit areas.
-- Placement: a fixed detail strip at the bottom of the card (not an anchored callout). It appears on axis click and the card grows by one row. The clicked axis is highlighted (brighten its spoke/label) so the spatial link to the strip is clear. Chosen over an anchored callout because the 9-axis ring makes per-axis callouts cramped and collision-prone.
+None open right now. The spider axis detail popout shipped in v0.1.0 (see [`CHANGELOG.md`](../CHANGELOG.md)); its design and plan live in `docs/superpowers/specs/2026-06-01-spider-axis-popout-design.md` and `docs/superpowers/plans/2026-06-01-spider-axis-popout-plan.md`.
 
 ## Deferred indefinitely
 
