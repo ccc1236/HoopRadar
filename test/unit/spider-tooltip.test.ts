@@ -189,4 +189,46 @@ describe("spider tooltip controller", () => {
     const host = document.querySelector(".fnba-spider-host");
     expect(host?.shadowRoot?.querySelector('[data-role="strip"]')).toBeNull();
   });
+
+  function clickAxis(key: string): void {
+    const host = document.querySelector(".fnba-spider-host")!;
+    const hit = host.shadowRoot!.querySelector<SVGCircleElement>(`circle[data-axis-key="${key}"]`)!;
+    hit.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  }
+  function stripText(): string {
+    const host = document.querySelector(".fnba-spider-host")!;
+    return host.shadowRoot!.querySelector('[data-role="strip"]')!.textContent ?? "";
+  }
+
+  it("populates the strip with rank, league avg, player value and percentile on axis click", async () => {
+    click();
+    await vi.waitFor(() => {
+      const host = document.querySelector(".fnba-spider-host");
+      expect(host).not.toBeNull();
+      // wait until data polygons are rendered (renderReady has fired)
+      expect(host!.shadowRoot!.querySelectorAll("polygon[data-role='window']").length).toBeGreaterThan(0);
+    });
+    clickAxis("PTS");
+    const txt = stripText();
+    expect(txt).toContain("PTS");
+    expect(txt).toContain("L5");          // active window label (getWindow returns Last5)
+    expect(txt).toContain("35th of 236"); // rank/n from the L5 fixture slice
+    expect(txt).toContain("28");          // player value
+    expect(txt).toContain("13.9");        // league avg
+    expect(txt).toContain("85th");        // percentile
+  });
+
+  it("toggles the strip off when the active axis is clicked again", async () => {
+    click();
+    await vi.waitFor(() => {
+      const host = document.querySelector(".fnba-spider-host");
+      expect(host).not.toBeNull();
+      // wait until data polygons are rendered (renderReady has fired)
+      expect(host!.shadowRoot!.querySelectorAll("polygon[data-role='window']").length).toBeGreaterThan(0);
+    });
+    clickAxis("PTS");
+    expect(stripText()).toContain("PTS");
+    clickAxis("PTS");
+    expect(stripText()).toContain("Click an axis");
+  });
 });

@@ -77,6 +77,19 @@ export function renderSpiderChart(data: SpiderData | null, activeAxisKey?: Spide
     return svg;
   }
 
+  // Axis hit-areas (data path only): transparent click targets over each spoke.
+  for (let i = 0; i < SPIDER_AXES.length; i++) {
+    const [hx, hy] = point(i, R + 10);
+    const hit = document.createElementNS(NS, "circle");
+    hit.setAttribute("cx", hx.toFixed(1));
+    hit.setAttribute("cy", hy.toFixed(1));
+    hit.setAttribute("r", "26");
+    hit.setAttribute("fill", "transparent");
+    hit.setAttribute("data-role", "axis-hit");
+    hit.setAttribute("data-axis-key", SPIDER_AXES[i]!.key);
+    svg.appendChild(hit);
+  }
+
   // Data polygons (Season under L10 under L5)
   for (const slot of SLOTS) {
     const slice = data.windows[slot];
@@ -152,16 +165,6 @@ export function renderSpiderChart(data: SpiderData | null, activeAxisKey?: Spide
       t.textContent = formatAxisValue(SPIDER_AXES[i]!.key as SpiderStatKey, raw ?? null);
       svg.appendChild(t);
     });
-
-    const [hx, hy] = point(i, R + 10);
-    const hit = document.createElementNS(NS, "circle");
-    hit.setAttribute("cx", hx.toFixed(1));
-    hit.setAttribute("cy", hy.toFixed(1));
-    hit.setAttribute("r", "26");
-    hit.setAttribute("fill", "transparent");
-    hit.setAttribute("data-role", "axis-hit");
-    hit.setAttribute("data-axis-key", SPIDER_AXES[i]!.key);
-    svg.appendChild(hit);
   }
 
   return svg;
