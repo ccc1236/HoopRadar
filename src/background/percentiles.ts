@@ -1,29 +1,27 @@
 import type { NbaPlayerId, PlayerStatRow } from "../shared/types.js";
-import type { PercentileRecord, SpiderStatKey } from "../shared/spider.js";
+import type { RankingRecord, SpiderStatKey } from "../shared/spider.js";
 
 /**
- * Build a per-player percentile table for each requested stat key.
+ * Build a per-player ranking table for each requested stat key.
  *
- * For each stat, players are ranked using the average-rank method for ties:
- *   averageRank = mean of the 1-indexed ranks the tied group occupies after
- *   sorting raw values ascending.
+ * Percentile (unchanged): average-rank method for ties.
+ *   Non-inverted: percentile = 100 * avgRank / n (highest raw = 100).
+ *   Inverted:     percentile = 100 * (n + 1 - avgRank) / n (lowest raw = 100).
  *
- * Non-inverted stats (higher raw = better): percentile = 100 * avgRank / n
- *   The player with the highest raw value lands at percentile 100.
+ * Rank: 1-based competition ranking. Ties share the best rank; the next rank
+ *   skips accordingly (e.g. 5, 5, 7). For non-inverted stats rank 1 = highest
+ *   raw value; for inverted stats rank 1 = lowest raw value.
  *
- * Inverted stats (lower raw = better, e.g. TOV):
- *   percentile = 100 * (n + 1 - avgRank) / n
- *   The player with the lowest raw value lands at percentile 100.
+ * n: count of players with a valid (finite) value for the stat.
  *
- * Players with a missing or NaN value for a stat are excluded from the
- * ranking and get `undefined` for that stat in the result.
+ * Players with a missing or NaN value are excluded and get `undefined`.
  */
 export function buildPercentileTable(
   rows: readonly PlayerStatRow[],
   keys: readonly SpiderStatKey[],
   invertedKeys: ReadonlySet<SpiderStatKey>,
-): Map<NbaPlayerId, PercentileRecord> {
-  const table = new Map<NbaPlayerId, PercentileRecord>();
+): Map<NbaPlayerId, RankingRecord> {
+  const table = new Map<NbaPlayerId, RankingRecord>();
   for (const r of rows) table.set(r.nbaId, {});
 
   for (const key of keys) {
@@ -47,8 +45,12 @@ export function buildPercentileTable(
       const pct = inverted
         ? Math.round(((100 * (n + 1 - avg)) / n) * 10) / 10
         : Math.round(((100 * avg) / n) * 10) / 10;
+      // Competition rank: count of strictly-better players + 1.
+      // Non-inverted: better = strictly greater value (indices after j).
+      // Inverted: better = strictly lesser value (indices before i).
+      const rank = inverted ? i + 1 : n - j;
       for (let k = i; k <= j; k++) {
-        table.get(valid[k]!.id)![key] = pct;
+        table.get(valid[k]!.id)![key] = { percentile: pct, rank, n };
       }
       i = j + 1;
     }

@@ -1,5 +1,5 @@
 import type { NbaPlayerId, PerModeKey, PlayerStatRow, WindowKey, YahooPlayerId } from "../shared/types.js";
-import type { GetSpiderDataResponse, SpiderData, SpiderStatKey, WindowSlice } from "../shared/spider.js";
+import type { GetSpiderDataResponse, RankingRecord, SpiderData, SpiderStatKey, WindowSlice } from "../shared/spider.js";
 import { buildPercentileTable } from "./percentiles.js";
 
 const SPIDER_KEYS: readonly SpiderStatKey[] = [
@@ -40,8 +40,8 @@ export async function buildSpiderData(args: BuildSpiderDataArgs): Promise<GetSpi
       if (!meta) {
         meta = { name: me.name, team: me.teamAbbr, position: me.position ?? "" };
       }
-      const ranks = buildPercentileTable(rows, SPIDER_KEYS, INVERTED);
-      windows[slot] = sliceFor(me, ranks.get(me.nbaId) ?? {});
+      const ranking = buildPercentileTable(rows, SPIDER_KEYS, INVERTED);
+      windows[slot] = sliceFor(me, ranking.get(me.nbaId) ?? {});
     }
   } catch {
     return { type: "getSpiderDataResponse", ok: false, reason: "fetch-failed" };
@@ -63,11 +63,16 @@ export async function buildSpiderData(args: BuildSpiderDataArgs): Promise<GetSpi
   return { type: "getSpiderDataResponse", ok: true, data };
 }
 
-function sliceFor(row: PlayerStatRow, pct: Partial<Record<SpiderStatKey, number>>): WindowSlice {
+function sliceFor(row: PlayerStatRow, ranking: RankingRecord): WindowSlice {
   const values: WindowSlice["values"] = {};
+  const percentiles: WindowSlice["percentiles"] = {};
   for (const k of SPIDER_KEYS) {
     const v = row.stats[k];
     if (typeof v === "number" && Number.isFinite(v)) values[k] = v;
+    const r = ranking[k];
+    // rank and n are carried in RankingRecord but not yet promoted to
+    // WindowSlice; a later task adds WindowSlice.ranks / .n / .leagueAvg.
+    if (r) percentiles[k] = r.percentile;
   }
-  return { values, percentiles: pct };
+  return { values, percentiles };
 }
