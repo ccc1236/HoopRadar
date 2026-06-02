@@ -8,9 +8,9 @@ const fullData: SpiderData = {
   position: "SG",
   perMode: "PerGame",
   windows: {
-    season: { values: { PTS: 20, REB: 5 }, percentiles: { PTS: 65, REB: 45 } },
-    L10:    { values: { PTS: 24, REB: 5.5 }, percentiles: { PTS: 78, REB: 55 } },
-    L5:     { values: { PTS: 28, REB: 6 }, percentiles: { PTS: 85, REB: 62 } },
+    season: { values: { PTS: 20, REB: 5 }, percentiles: { PTS: 65, REB: 45 }, ranks: { PTS: 80, REB: 130 }, n: { PTS: 240, REB: 240 }, leagueAvg: { PTS: 14, REB: 5.1 } },
+    L10:    { values: { PTS: 24, REB: 5.5 }, percentiles: { PTS: 78, REB: 55 }, ranks: { PTS: 52, REB: 108 }, n: { PTS: 238, REB: 238 }, leagueAvg: { PTS: 14, REB: 5.0 } },
+    L5:     { values: { PTS: 28, REB: 6 }, percentiles: { PTS: 85, REB: 62 }, ranks: { PTS: 35, REB: 90 }, n: { PTS: 236, REB: 236 }, leagueAvg: { PTS: 13.9, REB: 5.0 } },
   },
 };
 

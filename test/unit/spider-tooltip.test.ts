@@ -21,9 +21,9 @@ function makeRow(yahooId: string): { table: HTMLTableElement; anchor: HTMLAnchor
 const fullData: SpiderData = {
   name: "P", team: "PHX", position: "SG", perMode: "PerGame",
   windows: {
-    season: { values: { PTS: 20 }, percentiles: { PTS: 65 } },
-    L10:    { values: { PTS: 24 }, percentiles: { PTS: 78 } },
-    L5:     { values: { PTS: 28 }, percentiles: { PTS: 85 } },
+    season: { values: { PTS: 20 }, percentiles: { PTS: 65 }, ranks: { PTS: 80 }, n: { PTS: 240 }, leagueAvg: { PTS: 14 } },
+    L10:    { values: { PTS: 24 }, percentiles: { PTS: 78 }, ranks: { PTS: 52 }, n: { PTS: 238 }, leagueAvg: { PTS: 14 } },
+    L5:     { values: { PTS: 28 }, percentiles: { PTS: 85 }, ranks: { PTS: 35 }, n: { PTS: 236 }, leagueAvg: { PTS: 13.9 } },
   },
 };
 

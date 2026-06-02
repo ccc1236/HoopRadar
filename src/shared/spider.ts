@@ -29,6 +29,9 @@ export type RankingRecord = Partial<Record<SpiderStatKey, StatRanking>>;
 export interface WindowSlice {
   values: Partial<Record<SpiderStatKey, number>>;
   percentiles: PercentileRecord;
+  ranks: Partial<Record<SpiderStatKey, number>>;
+  n: Partial<Record<SpiderStatKey, number>>;
+  leagueAvg: Partial<Record<SpiderStatKey, number>>;
 }
 
 export interface SpiderData {
