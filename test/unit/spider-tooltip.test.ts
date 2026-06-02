@@ -21,9 +21,9 @@ function makeRow(yahooId: string): { table: HTMLTableElement; anchor: HTMLAnchor
 const fullData: SpiderData = {
   name: "P", team: "PHX", position: "SG", perMode: "PerGame",
   windows: {
-    season: { values: { PTS: 20 }, percentiles: { PTS: 65 }, ranks: { PTS: 80 }, n: { PTS: 240 }, leagueAvg: { PTS: 14 } },
-    L10:    { values: { PTS: 24 }, percentiles: { PTS: 78 }, ranks: { PTS: 52 }, n: { PTS: 238 }, leagueAvg: { PTS: 14 } },
-    L5:     { values: { PTS: 28 }, percentiles: { PTS: 85 }, ranks: { PTS: 35 }, n: { PTS: 236 }, leagueAvg: { PTS: 13.9 } },
+    season: { values: { PTS: 20, REB: 8 }, percentiles: { PTS: 65, REB: 70 }, ranks: { PTS: 80, REB: 60 }, n: { PTS: 240, REB: 240 }, leagueAvg: { PTS: 14, REB: 5 } },
+    L10:    { values: { PTS: 24, REB: 9 }, percentiles: { PTS: 78, REB: 75 }, ranks: { PTS: 52, REB: 48 }, n: { PTS: 238, REB: 238 }, leagueAvg: { PTS: 14, REB: 5 } },
+    L5:     { values: { PTS: 28, REB: 10 }, percentiles: { PTS: 85, REB: 82 }, ranks: { PTS: 35, REB: 30 }, n: { PTS: 236, REB: 236 }, leagueAvg: { PTS: 13.9, REB: 5 } },
   },
 };
 
@@ -289,5 +289,37 @@ describe("spider tooltip controller", () => {
     host.shadowRoot!.querySelector<SVGCircleElement>(`circle[data-axis-key="PTS"]`)!
       .dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(host.shadowRoot!.querySelector('[data-role="strip"]')!.textContent).toContain("no L5 data");
+  });
+
+  it("switches the strip content when a different axis is clicked", async () => {
+    click();
+    await vi.waitFor(() => {
+      const host = document.querySelector(".fnba-spider-host");
+      expect(host).not.toBeNull();
+      expect(host!.shadowRoot!.querySelectorAll("polygon[data-role='window']").length).toBeGreaterThan(0);
+    });
+    clickAxis("PTS");
+    expect(stripText()).toContain("35th of 236"); // PTS L5 rank/n
+    clickAxis("REB");
+    const txt = stripText();
+    expect(txt).toContain("REB");
+    expect(txt).toContain("30th of 236"); // REB L5 rank/n
+    expect(txt).not.toContain("35th of 236"); // PTS row replaced
+  });
+
+  it("keeps the strip populated after a per-mode change (refetch)", async () => {
+    click();
+    await vi.waitFor(() => {
+      const host = document.querySelector(".fnba-spider-host");
+      expect(host).not.toBeNull();
+      expect(host!.shadowRoot!.querySelectorAll("polygon[data-role='window']").length).toBeGreaterThan(0);
+    });
+    clickAxis("PTS");
+    expect(stripText()).toContain("35th of 236");
+    const callsBefore = send.mock.calls.length;
+    controller.onPerModeChange();
+    await vi.waitFor(() => expect(send.mock.calls.length).toBe(callsBefore + 1));
+    await vi.waitFor(() => expect(stripText()).toContain("35th of 236"));
+    expect(stripText()).not.toContain("Click an axis");
   });
 });
