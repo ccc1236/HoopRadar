@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.1.0 - 2026-06-02
+
+Spider tooltip gains a click-to-open axis detail popout, plus reliability and loading-feedback improvements.
+
+- New: click an axis on a pinned spider card to see that stat's rank (e.g. 5th of 236), league average, your value, and percentile. The popout follows the active Window and Per Mode, switches windows instantly, and shows a short note when the selected window has no data for the player.
+- More reliable stat loading: fNBA now retries nba.com's occasional transient (5xx) errors automatically instead of surfacing them right away.
+- The "Loading..." and "Refreshing..." status now pulses so background work is visible.
+- README documents first-load caching behavior and nba.com flakiness.
+
 ## v0.0.13 - 2026-06-01
 
 - Fixed the spider tooltip triggering when hovering the news icon next to a player name. Yahoo renders two anchors per player that share the same id; the tooltip now only opens on the name link, leaving Yahoo's news popup alone.

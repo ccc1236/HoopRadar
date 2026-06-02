@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "fNBA - Fantasy NBA Stats Overlay",
-  "version": "0.0.13",
+  "version": "0.1.0",
   "description": "Advanced stats overlay for Yahoo Fantasy Basketball.",
   "icons": {
     "16": "public/icons/icon-16.png",
