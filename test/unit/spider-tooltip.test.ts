@@ -231,4 +231,63 @@ describe("spider tooltip controller", () => {
     clickAxis("PTS");
     expect(stripText()).toContain("Click an axis");
   });
+
+  it("re-renders the strip on window change without a new fetch", async () => {
+    controller.teardown();
+    let win: import("../../src/shared/types.js").WindowKey = "Last5";
+    controller = createSpiderTooltipController({
+      table: row.table,
+      send,
+      getPerMode: () => "PerGame",
+      getWindow: () => win,
+    });
+    click();
+    await vi.waitFor(() => {
+      const host = document.querySelector(".fnba-spider-host");
+      expect(host).not.toBeNull();
+      expect(host!.shadowRoot!.querySelectorAll("polygon[data-role='window']").length).toBeGreaterThan(0);
+    });
+    const callsAfterFetch = send.mock.calls.length;
+    const host = document.querySelector(".fnba-spider-host")!;
+    const hit = host.shadowRoot!.querySelector<SVGCircleElement>(`circle[data-axis-key="PTS"]`)!;
+    hit.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(host.shadowRoot!.querySelector('[data-role="strip"]')!.textContent).toContain("35th of 236"); // L5
+
+    win = "Season";
+    controller.onWindowChange();
+    const txt = host.shadowRoot!.querySelector('[data-role="strip"]')!.textContent ?? "";
+    expect(txt).toContain("Season");
+    expect(txt).toContain("80th of 240"); // season rank/n
+    expect(send.mock.calls.length).toBe(callsAfterFetch); // no extra fetch
+  });
+
+  it("shows a no-data note when the active window slice is null", async () => {
+    controller.teardown();
+    let win: import("../../src/shared/types.js").WindowKey = "Last5";
+    send = vi.fn().mockResolvedValue({
+      type: "getSpiderDataResponse",
+      ok: true,
+      data: {
+        ...fullData,
+        windows: { ...fullData.windows, L5: null },
+      },
+    } satisfies GetSpiderDataResponse);
+    controller = createSpiderTooltipController({
+      table: row.table,
+      send,
+      getPerMode: () => "PerGame",
+      getWindow: () => win,
+    });
+    click();
+    await vi.waitFor(() => {
+      const host = document.querySelector(".fnba-spider-host");
+      expect(host).not.toBeNull();
+      // wait until renderReady fires (axis-hit circles require non-null data)
+      expect(host!.shadowRoot!.querySelector(`circle[data-axis-key="PTS"]`)).not.toBeNull();
+    });
+    const host = document.querySelector(".fnba-spider-host")!;
+    host.shadowRoot!.querySelector<SVGCircleElement>(`circle[data-axis-key="PTS"]`)!
+      .dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(host.shadowRoot!.querySelector('[data-role="strip"]')!.textContent).toContain("no L5 data");
+  });
 });

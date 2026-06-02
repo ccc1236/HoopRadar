@@ -328,7 +328,7 @@ export function createSpiderTooltipController(deps: SpiderTooltipDeps): SpiderTo
       if (openCard) void fetchAndRender();
     },
     onWindowChange: () => {
-      /* strip re-render wired in a later task */
+      if (openCard) renderStrip();
     },
   };
 }
