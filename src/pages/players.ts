@@ -269,6 +269,7 @@ export async function run(_info: PageInfo): Promise<{ teardown: () => void }> {
     table,
     send: (req: GetSpiderDataRequest) => send<GetSpiderDataResponse>(req),
     getPerMode: () => bar.getSettings().perMode,
+    getWindow: () => bar.getSettings().window,
     safeAreas: [bar],
   });
 
@@ -278,6 +279,7 @@ export async function run(_info: PageInfo): Promise<{ teardown: () => void }> {
     settings = ce.detail;
     await paint(table, bar, settings);
     if (prev.perMode !== settings.perMode) spider.onPerModeChange();
+    if (prev.window !== settings.window) spider.onWindowChange();
   };
   const onRefresh = async (): Promise<void> => {
     // Force-fresh path. Refresh both caches:

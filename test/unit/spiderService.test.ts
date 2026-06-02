@@ -66,6 +66,13 @@ describe("buildSpiderData", () => {
     // 2 players, "A. Player" leads in PTS in all windows so 100th percentile
     expect(out.data.windows.season?.percentiles.PTS).toBe(100);
     expect(out.data.windows.L5?.percentiles.PTS).toBe(100);
+    // A. Player leads PTS in a 2-player league: rank 1 of 2, league avg = (20+10)/2.
+    expect(out.data.windows.season?.ranks.PTS).toBe(1);
+    expect(out.data.windows.season?.n.PTS).toBe(2);
+    expect(out.data.windows.season?.leagueAvg.PTS).toBe(15);
+    // TOV is inverted; both players have TOV 2 (tie) so both rank 1, avg 2.
+    expect(out.data.windows.season?.ranks.TOV).toBe(1);
+    expect(out.data.windows.season?.leagueAvg.TOV).toBe(2);
   });
 
   it("returns null for a window when the player isn't in that window's rows", async () => {

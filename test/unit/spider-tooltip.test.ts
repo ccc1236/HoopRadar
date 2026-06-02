@@ -21,9 +21,9 @@ function makeRow(yahooId: string): { table: HTMLTableElement; anchor: HTMLAnchor
 const fullData: SpiderData = {
   name: "P", team: "PHX", position: "SG", perMode: "PerGame",
   windows: {
-    season: { values: { PTS: 20 }, percentiles: { PTS: 65 } },
-    L10:    { values: { PTS: 24 }, percentiles: { PTS: 78 } },
-    L5:     { values: { PTS: 28 }, percentiles: { PTS: 85 } },
+    season: { values: { PTS: 20, REB: 8 }, percentiles: { PTS: 65, REB: 70 }, ranks: { PTS: 80, REB: 60 }, n: { PTS: 240, REB: 240 }, leagueAvg: { PTS: 14, REB: 5 } },
+    L10:    { values: { PTS: 24, REB: 9 }, percentiles: { PTS: 78, REB: 75 }, ranks: { PTS: 52, REB: 48 }, n: { PTS: 238, REB: 238 }, leagueAvg: { PTS: 14, REB: 5 } },
+    L5:     { values: { PTS: 28, REB: 10 }, percentiles: { PTS: 85, REB: 82 }, ranks: { PTS: 35, REB: 30 }, n: { PTS: 236, REB: 236 }, leagueAvg: { PTS: 13.9, REB: 5 } },
   },
 };
 
@@ -46,6 +46,7 @@ describe("spider tooltip controller", () => {
       table: row.table,
       send,
       getPerMode: () => "PerGame",
+      getWindow: () => "Last5",
     });
   });
   afterEach(() => {
@@ -163,6 +164,7 @@ describe("spider tooltip controller", () => {
       table: row.table,
       send,
       getPerMode: () => "PerGame",
+      getWindow: () => "Last5",
       safeAreas: [safe],
     });
 
@@ -171,5 +173,153 @@ describe("spider tooltip controller", () => {
 
     inner.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(document.querySelector(".fnba-spider-host")).not.toBeNull();
+  });
+
+  it("shows an empty detail strip on a pinned card", async () => {
+    click();
+    await vi.waitFor(() => {
+      const host = document.querySelector(".fnba-spider-host");
+      expect(host?.shadowRoot?.querySelector('[data-role="strip"]')).not.toBeNull();
+    });
+  });
+
+  it("does not render a detail strip on a hover-preview card", () => {
+    mouseover();
+    vi.advanceTimersByTime(300);
+    const host = document.querySelector(".fnba-spider-host");
+    expect(host?.shadowRoot?.querySelector('[data-role="strip"]')).toBeNull();
+  });
+
+  function clickAxis(key: string): void {
+    const host = document.querySelector(".fnba-spider-host")!;
+    const hit = host.shadowRoot!.querySelector<SVGCircleElement>(`circle[data-axis-key="${key}"]`)!;
+    hit.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  }
+  function stripText(): string {
+    const host = document.querySelector(".fnba-spider-host")!;
+    return host.shadowRoot!.querySelector('[data-role="strip"]')!.textContent ?? "";
+  }
+
+  it("populates the strip with rank, league avg, player value and percentile on axis click", async () => {
+    click();
+    await vi.waitFor(() => {
+      const host = document.querySelector(".fnba-spider-host");
+      expect(host).not.toBeNull();
+      // wait until data polygons are rendered (renderReady has fired)
+      expect(host!.shadowRoot!.querySelectorAll("polygon[data-role='window']").length).toBeGreaterThan(0);
+    });
+    clickAxis("PTS");
+    const txt = stripText();
+    expect(txt).toContain("PTS");
+    expect(txt).toContain("L5");          // active window label (getWindow returns Last5)
+    expect(txt).toContain("35th of 236"); // rank/n from the L5 fixture slice
+    expect(txt).toContain("28");          // player value
+    expect(txt).toContain("13.9");        // league avg
+    expect(txt).toContain("85th");        // percentile
+  });
+
+  it("toggles the strip off when the active axis is clicked again", async () => {
+    click();
+    await vi.waitFor(() => {
+      const host = document.querySelector(".fnba-spider-host");
+      expect(host).not.toBeNull();
+      // wait until data polygons are rendered (renderReady has fired)
+      expect(host!.shadowRoot!.querySelectorAll("polygon[data-role='window']").length).toBeGreaterThan(0);
+    });
+    clickAxis("PTS");
+    expect(stripText()).toContain("PTS");
+    clickAxis("PTS");
+    expect(stripText()).toContain("Click an axis");
+  });
+
+  it("re-renders the strip on window change without a new fetch", async () => {
+    controller.teardown();
+    let win: import("../../src/shared/types.js").WindowKey = "Last5";
+    controller = createSpiderTooltipController({
+      table: row.table,
+      send,
+      getPerMode: () => "PerGame",
+      getWindow: () => win,
+    });
+    click();
+    await vi.waitFor(() => {
+      const host = document.querySelector(".fnba-spider-host");
+      expect(host).not.toBeNull();
+      expect(host!.shadowRoot!.querySelectorAll("polygon[data-role='window']").length).toBeGreaterThan(0);
+    });
+    const callsAfterFetch = send.mock.calls.length;
+    const host = document.querySelector(".fnba-spider-host")!;
+    const hit = host.shadowRoot!.querySelector<SVGCircleElement>(`circle[data-axis-key="PTS"]`)!;
+    hit.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(host.shadowRoot!.querySelector('[data-role="strip"]')!.textContent).toContain("35th of 236"); // L5
+
+    win = "Season";
+    controller.onWindowChange();
+    const txt = host.shadowRoot!.querySelector('[data-role="strip"]')!.textContent ?? "";
+    expect(txt).toContain("Season");
+    expect(txt).toContain("80th of 240"); // season rank/n
+    expect(send.mock.calls.length).toBe(callsAfterFetch); // no extra fetch
+  });
+
+  it("shows a no-data note when the active window slice is null", async () => {
+    controller.teardown();
+    let win: import("../../src/shared/types.js").WindowKey = "Last5";
+    send = vi.fn().mockResolvedValue({
+      type: "getSpiderDataResponse",
+      ok: true,
+      data: {
+        ...fullData,
+        windows: { ...fullData.windows, L5: null },
+      },
+    } satisfies GetSpiderDataResponse);
+    controller = createSpiderTooltipController({
+      table: row.table,
+      send,
+      getPerMode: () => "PerGame",
+      getWindow: () => win,
+    });
+    click();
+    await vi.waitFor(() => {
+      const host = document.querySelector(".fnba-spider-host");
+      expect(host).not.toBeNull();
+      // wait until renderReady fires (axis-hit circles require non-null data)
+      expect(host!.shadowRoot!.querySelector(`circle[data-axis-key="PTS"]`)).not.toBeNull();
+    });
+    const host = document.querySelector(".fnba-spider-host")!;
+    host.shadowRoot!.querySelector<SVGCircleElement>(`circle[data-axis-key="PTS"]`)!
+      .dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(host.shadowRoot!.querySelector('[data-role="strip"]')!.textContent).toContain("no L5 data");
+  });
+
+  it("switches the strip content when a different axis is clicked", async () => {
+    click();
+    await vi.waitFor(() => {
+      const host = document.querySelector(".fnba-spider-host");
+      expect(host).not.toBeNull();
+      expect(host!.shadowRoot!.querySelectorAll("polygon[data-role='window']").length).toBeGreaterThan(0);
+    });
+    clickAxis("PTS");
+    expect(stripText()).toContain("35th of 236"); // PTS L5 rank/n
+    clickAxis("REB");
+    const txt = stripText();
+    expect(txt).toContain("REB");
+    expect(txt).toContain("30th of 236"); // REB L5 rank/n
+    expect(txt).not.toContain("35th of 236"); // PTS row replaced
+  });
+
+  it("keeps the strip populated after a per-mode change (refetch)", async () => {
+    click();
+    await vi.waitFor(() => {
+      const host = document.querySelector(".fnba-spider-host");
+      expect(host).not.toBeNull();
+      expect(host!.shadowRoot!.querySelectorAll("polygon[data-role='window']").length).toBeGreaterThan(0);
+    });
+    clickAxis("PTS");
+    expect(stripText()).toContain("35th of 236");
+    const callsBefore = send.mock.calls.length;
+    controller.onPerModeChange();
+    await vi.waitFor(() => expect(send.mock.calls.length).toBe(callsBefore + 1));
+    await vi.waitFor(() => expect(stripText()).toContain("35th of 236"));
+    expect(stripText()).not.toContain("Click an axis");
   });
 });

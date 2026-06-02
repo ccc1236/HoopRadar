@@ -14,9 +14,24 @@ export type SpiderStatKey =
 /** League percentile (0..100) per stat key. */
 export type PercentileRecord = Partial<Record<SpiderStatKey, number>>;
 
+/** Per-stat ranking detail produced by buildPercentileTable. */
+export interface StatRanking {
+  /** 0..100, average-rank method (unchanged from the original percentile). */
+  percentile: number;
+  /** 1-based competition rank; ties share the best (lowest) rank. */
+  rank: number;
+  /** Count of players with a valid value for this stat (the rank denominator). */
+  n: number;
+}
+
+export type RankingRecord = Partial<Record<SpiderStatKey, StatRanking>>;
+
 export interface WindowSlice {
   values: Partial<Record<SpiderStatKey, number>>;
   percentiles: PercentileRecord;
+  ranks: Partial<Record<SpiderStatKey, number>>;
+  n: Partial<Record<SpiderStatKey, number>>;
+  leagueAvg: Partial<Record<SpiderStatKey, number>>;
 }
 
 export interface SpiderData {

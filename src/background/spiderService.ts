@@ -1,6 +1,7 @@
 import type { NbaPlayerId, PerModeKey, PlayerStatRow, WindowKey, YahooPlayerId } from "../shared/types.js";
-import type { GetSpiderDataResponse, SpiderData, SpiderStatKey, WindowSlice } from "../shared/spider.js";
+import type { GetSpiderDataResponse, RankingRecord, SpiderData, SpiderStatKey, WindowSlice } from "../shared/spider.js";
 import { buildPercentileTable } from "./percentiles.js";
+import { leagueMean } from "./leagueAverages.js";
 
 const SPIDER_KEYS: readonly SpiderStatKey[] = [
   "PTS", "REB", "AST", "STL", "BLK", "FG3M", "TOV", "TS_PCT", "USG_PCT",
@@ -40,8 +41,13 @@ export async function buildSpiderData(args: BuildSpiderDataArgs): Promise<GetSpi
       if (!meta) {
         meta = { name: me.name, team: me.teamAbbr, position: me.position ?? "" };
       }
-      const ranks = buildPercentileTable(rows, SPIDER_KEYS, INVERTED);
-      windows[slot] = sliceFor(me, ranks.get(me.nbaId) ?? {});
+      const ranking = buildPercentileTable(rows, SPIDER_KEYS, INVERTED);
+      const avgs: Partial<Record<SpiderStatKey, number>> = {};
+      for (const k of SPIDER_KEYS) {
+        const m = leagueMean(rows, k);
+        if (m !== undefined) avgs[k] = m;
+      }
+      windows[slot] = sliceFor(me, ranking.get(me.nbaId) ?? {}, avgs);
     }
   } catch {
     return { type: "getSpiderDataResponse", ok: false, reason: "fetch-failed" };
@@ -63,11 +69,27 @@ export async function buildSpiderData(args: BuildSpiderDataArgs): Promise<GetSpi
   return { type: "getSpiderDataResponse", ok: true, data };
 }
 
-function sliceFor(row: PlayerStatRow, pct: Partial<Record<SpiderStatKey, number>>): WindowSlice {
+function sliceFor(
+  row: PlayerStatRow,
+  ranking: RankingRecord,
+  avgs: Partial<Record<SpiderStatKey, number>>,
+): WindowSlice {
   const values: WindowSlice["values"] = {};
+  const percentiles: WindowSlice["percentiles"] = {};
+  const ranks: WindowSlice["ranks"] = {};
+  const n: WindowSlice["n"] = {};
+  const leagueAvg: WindowSlice["leagueAvg"] = {};
   for (const k of SPIDER_KEYS) {
     const v = row.stats[k];
     if (typeof v === "number" && Number.isFinite(v)) values[k] = v;
+    const r = ranking[k];
+    if (r) {
+      percentiles[k] = r.percentile;
+      ranks[k] = r.rank;
+      n[k] = r.n;
+    }
+    const a = avgs[k];
+    if (a !== undefined) leagueAvg[k] = a;
   }
-  return { values, percentiles: pct };
+  return { values, percentiles, ranks, n, leagueAvg };
 }
