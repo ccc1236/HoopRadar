@@ -4,7 +4,7 @@ import type {
   GetSpiderDataResponse,
   SpiderData,
 } from "../shared/spider.js";
-import type { PerModeKey } from "../shared/types.js";
+import type { PerModeKey, WindowKey } from "../shared/types.js";
 
 const HOVER_DELAY_MS = 300;
 const HOST_CLASS = "fnba-spider-host";
@@ -43,12 +43,21 @@ const STYLES = `
   .legend .g { background: #F59E0B; }
   .legend [data-dim="1"] { opacity: 0.35; }
   .msg { padding: 30px 16px 26px; text-align: center; color: #E5E7EB; font-size: 12px; }
+  .strip { border-top: 1px solid rgba(255,255,255,.12); padding: 10px 14px 12px; }
+  .strip.empty { color: #6b7280; font-size: 12px; font-style: italic; }
+  .strip .stat { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .strip .stat .ctx { color: #9CA3AF; font-weight: 400; }
+  .strip .grid { display: flex; gap: 14px; font-size: 13px; }
+  .strip .lbl { color: #9CA3AF; font-size: 11px; }
+  .strip .val { font-weight: 600; }
+  .strip .you { color: #F59E0B; }
 `;
 
 export interface SpiderTooltipDeps {
   table: HTMLTableElement;
   send: (req: GetSpiderDataRequest) => Promise<GetSpiderDataResponse>;
   getPerMode: () => PerModeKey;
+  getWindow: () => WindowKey;
   /**
    * Elements whose clicks should NOT dismiss a pinned card. Use this to
    * exclude UI surfaces the user is allowed to interact with while the
@@ -60,6 +69,7 @@ export interface SpiderTooltipDeps {
 export interface SpiderTooltipHandle {
   teardown: () => void;
   onPerModeChange: () => void;
+  onWindowChange: () => void;
 }
 
 interface OpenCard {
@@ -117,6 +127,7 @@ export function createSpiderTooltipController(deps: SpiderTooltipDeps): SpiderTo
           <span data-window="L10"><i class="t"></i>L10</span>
           <span data-window="L5"><i class="g"></i>L5</span>
         </div>
+        ${pinned ? '<div class="strip empty" data-role="strip">Click an axis to see rank and league average.</div>' : ""}
       </div>
     `;
     document.body.appendChild(host);
@@ -236,6 +247,9 @@ export function createSpiderTooltipController(deps: SpiderTooltipDeps): SpiderTo
     },
     onPerModeChange: () => {
       if (openCard) void fetchAndRender();
+    },
+    onWindowChange: () => {
+      /* strip re-render wired in a later task */
     },
   };
 }

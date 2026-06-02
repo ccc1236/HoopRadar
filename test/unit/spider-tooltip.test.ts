@@ -46,6 +46,7 @@ describe("spider tooltip controller", () => {
       table: row.table,
       send,
       getPerMode: () => "PerGame",
+      getWindow: () => "Last5",
     });
   });
   afterEach(() => {
@@ -163,6 +164,7 @@ describe("spider tooltip controller", () => {
       table: row.table,
       send,
       getPerMode: () => "PerGame",
+      getWindow: () => "Last5",
       safeAreas: [safe],
     });
 
@@ -171,5 +173,20 @@ describe("spider tooltip controller", () => {
 
     inner.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(document.querySelector(".fnba-spider-host")).not.toBeNull();
+  });
+
+  it("shows an empty detail strip on a pinned card", async () => {
+    click();
+    await vi.waitFor(() => {
+      const host = document.querySelector(".fnba-spider-host");
+      expect(host?.shadowRoot?.querySelector('[data-role="strip"]')).not.toBeNull();
+    });
+  });
+
+  it("does not render a detail strip on a hover-preview card", () => {
+    mouseover();
+    vi.advanceTimersByTime(300);
+    const host = document.querySelector(".fnba-spider-host");
+    expect(host?.shadowRoot?.querySelector('[data-role="strip"]')).toBeNull();
   });
 });
