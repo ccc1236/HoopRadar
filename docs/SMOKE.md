@@ -179,6 +179,20 @@ On any My Team or Players page, with the filter bar mounted:
 
 Smoke-passes if all 11 steps succeed.
 
+## 11. Spider axis detail popout
+
+On any My Team or Players page, with a spider card pinned (click the player name):
+
+1. Pin a player's spider card (click the player name).
+2. Click each axis in turn. Confirm the bottom strip shows Rank (Nth of N), League avg, Player, Percentile, and that the clicked axis highlights.
+3. Click the active axis again. Confirm the strip collapses to the "Click an axis" placeholder.
+4. With the strip open, change the filter bar Window (Season / L5 / L10). Confirm the strip's numbers and the window label update with no page reload and no visible refetch flicker.
+5. Change the filter bar Per-mode (Per Game / Per 36 / Per 100). Confirm counting-stat rows (PTS, REB, etc.) rescale while ratio rows (TS%, USG%) hold steady, and the strip stays open.
+6. Find a player with no L5 sample (recently returned from injury). Select L5, click an axis, confirm the strip shows "STAT - no L5 data".
+7. Hover a player name without pinning. Confirm clicking an axis on the hover-preview card does nothing (no strip).
+
+Smoke-passes if all 7 steps succeed.
+
 ## Known limitations (current build)
 
 - **eFG% / TS% / USG% are not sortable.** Clicking those headers does nothing. Sort applies only to Yahoo's native columns. Deferred indefinitely; see `docs/ROADMAP.md`.
