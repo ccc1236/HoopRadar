@@ -48,4 +48,26 @@ describe("renderSpiderChart", () => {
     expect(svg.querySelectorAll("polygon[data-role='window']").length).toBe(0);
     expect(svg.querySelector("text[data-role='loading']")).not.toBeNull();
   });
+
+  it("renders 9 invisible axis hit-areas keyed by stat", () => {
+    const svg = renderSpiderChart(fullData);
+    const hits = Array.from(svg.querySelectorAll<SVGCircleElement>("circle[data-role='axis-hit']"));
+    expect(hits.length).toBe(9);
+    expect(hits.map((h) => h.getAttribute("data-axis-key"))).toEqual([
+      "FG3M", "PTS", "REB", "AST", "STL", "BLK", "TOV", "TS_PCT", "USG_PCT",
+    ]);
+  });
+
+  it("marks the active axis spoke and label when activeAxisKey is given", () => {
+    const svg = renderSpiderChart(fullData, "PTS");
+    const activeKeys = Array.from(svg.querySelectorAll("text[data-role='axis-key'][data-active='1']"));
+    expect(activeKeys.length).toBe(1);
+    expect(activeKeys[0]?.textContent).toBe("PTS");
+    expect(svg.querySelectorAll("line[data-role='spoke'][data-active='1']").length).toBe(1);
+  });
+
+  it("does not highlight any spoke on the loading skeleton even if a key is passed", () => {
+    const svg = renderSpiderChart(null, "PTS");
+    expect(svg.querySelectorAll("[data-active='1']").length).toBe(0);
+  });
 });

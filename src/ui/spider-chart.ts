@@ -26,7 +26,7 @@ function point(i: number, r: number): [number, number] {
   return [CX + r * Math.cos(a), CY + r * Math.sin(a)];
 }
 
-export function renderSpiderChart(data: SpiderData | null): SVGSVGElement {
+export function renderSpiderChart(data: SpiderData | null, activeAxisKey?: SpiderStatKey | null): SVGSVGElement {
   const svg = document.createElementNS(NS, "svg");
   svg.setAttribute("width", String(WIDTH));
   svg.setAttribute("height", String(HEIGHT));
@@ -56,9 +56,11 @@ export function renderSpiderChart(data: SpiderData | null): SVGSVGElement {
     line.setAttribute("y1", String(CY));
     line.setAttribute("x2", x.toFixed(1));
     line.setAttribute("y2", y.toFixed(1));
-    line.setAttribute("stroke", "rgba(255,255,255,.08)");
-    line.setAttribute("stroke-width", "1");
+    const isActive = data !== null && SPIDER_AXES[i]!.key === activeAxisKey;
+    line.setAttribute("stroke", isActive ? "rgba(255,255,255,.5)" : "rgba(255,255,255,.08)");
+    line.setAttribute("stroke-width", isActive ? "1.5" : "1");
     line.setAttribute("data-role", "spoke");
+    if (isActive) line.setAttribute("data-active", "1");
     svg.appendChild(line);
   }
 
@@ -123,6 +125,11 @@ export function renderSpiderChart(data: SpiderData | null): SVGSVGElement {
     key.setAttribute("font-weight", "600");
     key.setAttribute("data-role", "axis-key");
     key.textContent = SPIDER_AXES[i]!.label;
+    if (SPIDER_AXES[i]!.key === activeAxisKey) {
+      key.setAttribute("fill", "#FFFFFF");
+      key.setAttribute("font-weight", "700");
+      key.setAttribute("data-active", "1");
+    }
     svg.appendChild(key);
 
     const valueRows: Array<{ slot: WindowSlot; bold: boolean }> = [
@@ -145,6 +152,16 @@ export function renderSpiderChart(data: SpiderData | null): SVGSVGElement {
       t.textContent = formatAxisValue(SPIDER_AXES[i]!.key as SpiderStatKey, raw ?? null);
       svg.appendChild(t);
     });
+
+    const [hx, hy] = point(i, R + 10);
+    const hit = document.createElementNS(NS, "circle");
+    hit.setAttribute("cx", hx.toFixed(1));
+    hit.setAttribute("cy", hy.toFixed(1));
+    hit.setAttribute("r", "26");
+    hit.setAttribute("fill", "transparent");
+    hit.setAttribute("data-role", "axis-hit");
+    hit.setAttribute("data-axis-key", SPIDER_AXES[i]!.key);
+    svg.appendChild(hit);
   }
 
   return svg;
