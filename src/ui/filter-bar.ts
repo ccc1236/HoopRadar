@@ -53,6 +53,14 @@ const STYLES = `
     color: #b00020;
     opacity: 1;
   }
+  .status[data-state="busy"] {
+    opacity: 1;
+    animation: fnba-pulse 1s ease-in-out infinite;
+  }
+  @keyframes fnba-pulse {
+    0%, 100% { opacity: 0.35; }
+    50% { opacity: 1; }
+  }
 `;
 
 export interface FilterBarHandle extends HTMLElement {
@@ -108,7 +116,10 @@ export async function createFilterBar(): Promise<FilterBarHandle> {
   host.getSettings = (): FilterSettings => ({ ...settings });
   host.setStatus = (text: string, state: "ok" | "error" = "ok"): void => {
     statusEl.textContent = text;
-    statusEl.dataset["state"] = state;
+    // A trailing ellipsis marks an in-progress status (Loading.../Refreshing...);
+    // render it with a pulse so the user sees work happening in the background.
+    const busy = state === "ok" && /\.\.\.$/.test(text);
+    statusEl.dataset["state"] = busy ? "busy" : state;
   };
 
   return host;

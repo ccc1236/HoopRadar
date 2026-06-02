@@ -48,4 +48,16 @@ describe("filter bar", () => {
     const sr = bar.shadowRoot!;
     expect(sr.querySelector('[data-role="status"]')!.textContent).toBe("Updated just now");
   });
+
+  it("marks a trailing-ellipsis status as busy (for the pulse animation)", () => {
+    const el = bar.shadowRoot!.querySelector('[data-role="status"]') as HTMLElement;
+    bar.setStatus("Loading...");
+    expect(el.dataset["state"]).toBe("busy");
+    bar.setStatus("Refreshing...");
+    expect(el.dataset["state"]).toBe("busy");
+    bar.setStatus("Updated 3:40 PM");
+    expect(el.dataset["state"]).toBe("ok");
+    bar.setStatus("UPSTREAM_UNAVAILABLE", "error");
+    expect(el.dataset["state"]).toBe("error");
+  });
 });
