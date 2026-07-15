@@ -16,7 +16,7 @@ describe("createWrongTabBanner", () => {
     });
     document.body.appendChild(banner);
     const sr = (banner as HTMLElement).shadowRoot!;
-    expect(sr.querySelector(".brand")?.textContent).toBe("fNBA");
+    expect(sr.querySelector(".brand")?.textContent).toBe("HoopRadar");
     expect(sr.querySelector(".msg")?.textContent).toContain("Switch to Average Stats");
     expect(sr.querySelector("button[data-role='switch']")).not.toBeNull();
   });

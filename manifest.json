@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "fNBA - Fantasy NBA Stats Overlay",
+  "name": "HoopRadar - Advanced Stats for Fantasy Hoops",
   "version": "0.1.0",
   "description": "Advanced stats overlay for Yahoo Fantasy Basketball.",
   "icons": {

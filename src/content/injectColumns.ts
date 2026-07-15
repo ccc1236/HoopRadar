@@ -58,7 +58,7 @@ function buildHeaderIndex(table: HTMLTableElement): Map<string, number> {
 }
 
 /**
- * Idempotent: removes prior fNBA columns and override marks before rendering.
+ * Idempotent: removes prior HoopRadar columns and override marks before rendering.
  *
  * Yahoo's tables have two thead rows: a group row (Rankings / Field Goals /
  * Free Throws / Miscellaneous / ...) and a label row (PTS / REB / AST / ...).
@@ -71,7 +71,7 @@ export function renderColumns(
   table: HTMLTableElement,
   data: Record<YahooPlayerId, PlayerStatRow | null>,
 ): void {
-  clearFnbaCells(table);
+  clearHoopradarCells(table);
 
   const headerIndex = buildHeaderIndex(table);
   const allHeadRows = table.querySelectorAll("thead tr");
@@ -80,7 +80,7 @@ export function renderColumns(
   if (allHeadRows.length >= 2) {
     const groupRow = allHeadRows[0]!;
     const groupTh = document.createElement("th");
-    groupTh.dataset.fnba = "group";
+    groupTh.dataset.hoopradar = "group";
     groupTh.colSpan = ADVANCED_COLUMNS.length;
     groupTh.textContent = GROUP_HEADER_LABEL;
     groupTh.style.textAlign = "center";
@@ -92,7 +92,7 @@ export function renderColumns(
   if (labelRow) {
     for (const col of ADVANCED_COLUMNS) {
       const th = document.createElement("th");
-      th.dataset.fnba = col.key;
+      th.dataset.hoopradar = col.key;
       th.textContent = col.label;
       th.style.textAlign = "end";
       insertBeforeSpacerOrAppend(labelRow, th);
@@ -107,7 +107,7 @@ export function renderColumns(
 
     for (const col of ADVANCED_COLUMNS) {
       const td = document.createElement("td");
-      td.dataset.fnba = col.key;
+      td.dataset.hoopradar = col.key;
       td.textContent = formatStat(stats?.[col.key] ?? null, col.decimals, col.multiplier);
       td.style.textAlign = "end";
       insertBeforeSpacerOrAppend(row, td);
@@ -125,7 +125,7 @@ export function renderColumns(
         const inner = cell.querySelector("div");
         const target = inner ?? cell;
         target.textContent = formatStat(stats[col.key] ?? null, col.decimals, col.multiplier);
-        cell.dataset.fnbaOverride = "1";
+        cell.dataset.hoopradarOverride = "1";
       }
 
       // Compound overrides (Yahoo renders `made/attempted` in a single cell).
@@ -142,13 +142,13 @@ export function renderColumns(
         } else {
           target.textContent = `${formatStat(make ?? null, col.decimals)}${col.separator}${formatStat(att ?? null, col.decimals)}`;
         }
-        cell.dataset.fnbaOverride = "1";
+        cell.dataset.hoopradarOverride = "1";
       }
 
       // Derived overrides (computed ratio of two nba.com stats, e.g. A/T,
       // FG%, FT%). Routed through formatStat so 3-decimal ratios in [0, 1)
       // get the leading-zero strip (".569" not "0.569"), matching the rest
-      // of fNBA's percentage formatting.
+      // of HoopRadar's percentage formatting.
       for (const col of DERIVED_OVERRIDE_COLUMNS) {
         const idx = headerIndex.get(col.yahooHeader);
         if (idx === undefined) continue;
@@ -162,17 +162,17 @@ export function renderColumns(
         } else {
           target.textContent = formatStat(num / den, col.decimals);
         }
-        cell.dataset.fnbaOverride = "1";
+        cell.dataset.hoopradarOverride = "1";
       }
     }
   }
 }
 
-export function clearFnbaCells(table: HTMLTableElement): void {
-  for (const el of Array.from(table.querySelectorAll("[data-fnba]"))) {
+export function clearHoopradarCells(table: HTMLTableElement): void {
+  for (const el of Array.from(table.querySelectorAll("[data-hoopradar]"))) {
     el.remove();
   }
-  for (const el of Array.from(table.querySelectorAll<HTMLElement>("[data-fnba-override]"))) {
-    delete el.dataset.fnbaOverride;
+  for (const el of Array.from(table.querySelectorAll<HTMLElement>("[data-hoopradar-override]"))) {
+    delete el.dataset.hoopradarOverride;
   }
 }

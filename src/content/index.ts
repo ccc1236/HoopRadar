@@ -54,4 +54,4 @@ observer.observe(document.body, { childList: true, subtree: true });
 
 window.addEventListener("popstate", () => void refresh());
 
-log.info("fNBA content script booted");
+log.info("HoopRadar content script booted");

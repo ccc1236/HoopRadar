@@ -13,7 +13,7 @@ export interface BootstrapResult {
   unmapped: YahooPlayerId[];
 }
 
-const NBA_LIST_KEY = (season: SeasonString) => `fnba.nbaList.${season}`;
+const NBA_LIST_KEY = (season: SeasonString) => `hoopradar.nbaList.${season}`;
 
 async function loadNbaList(season: SeasonString): Promise<NbaPlayer[] | null> {
   const r = await chrome.storage.local.get(NBA_LIST_KEY(season));

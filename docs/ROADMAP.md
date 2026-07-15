@@ -1,6 +1,6 @@
 # Roadmap
 
-Future work for fNBA, grouped by category. The Options page is the natural next big project because it unblocks six smaller items.
+Future work for HoopRadar, grouped by category. The Options page is the natural next big project because it unblocks six smaller items.
 
 For shipped releases, see [`CHANGELOG.md`](../CHANGELOG.md).
 
@@ -20,7 +20,7 @@ These all slot into the Options page once it exists. Worth scoping together duri
 |---|---|
 | Manual NBA-mapping override | Fix any player the auto-mapper missed by picking the NBA player by hand. The spider tooltip's "No NBA mapping" message will link here. |
 | Custom column picker | Add / remove / reorder the advanced columns we inject |
-| Per-category fantasy scoring weights | Tell fNBA your league's scoring so the spider and column overlays can weight stats accordingly |
+| Per-category fantasy scoring weights | Tell HoopRadar your league's scoring so the spider and column overlays can weight stats accordingly |
 | Refresh-cadence override | Default is 6 h; let users set 1 h / 12 h / 24 h / off |
 | API health, cache size, Clear cache, Export logs | Diagnostics for issue reports |
 | Tooltip trigger mode override | Hover-pin / hover-only / click-only |
@@ -43,7 +43,7 @@ If we ever pick this back up:
 
 - Two-state click cycle: first click desc, second click asc, repeat
 - Visual: small arrow next to the active header
-- Persist sort across filter changes by capturing direction before `clearFnbaCells` and re-applying after re-render
+- Persist sort across filter changes by capturing direction before `clearHoopradarCells` and re-applying after re-render
 - Null / dash values sort to the bottom regardless of direction
 - Out of scope: removing Yahoo's `Selected` class on Yahoo columns when ours is active (cosmetic)
 

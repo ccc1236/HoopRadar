@@ -10,7 +10,7 @@ export const DEFAULT_SETTINGS: FilterSettings = {
   perMode: "PerGame",
 };
 
-const KEY = "fnba.filterSettings";
+const KEY = "hoopradar.filterSettings";
 
 function hasDirectStorage(): boolean {
   return (

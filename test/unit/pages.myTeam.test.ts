@@ -2,11 +2,24 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { run } from "../../src/pages/myTeam.js";
+import { currentSeason } from "../../src/background/season.js";
 import "../../src/ui/filter-bar.js";
 
 const FIXTURE = readFileSync(resolve(__dirname, "../fixtures/yahoo/myTeam.html"), "utf8");
 
+/**
+ * The fixture is a frozen snapshot of a 2025-26 Yahoo page: its Average Stats
+ * subnav only offers stat2=AS_2023 / AS_2024 / AS_2025. `currentSeason()` reads
+ * the wall clock and rolls over every July, so with a live clock this test goes
+ * looking for a stat2=AS_<currentYear> tab the fixture can never contain and the
+ * whole suite rots on July 1. Pin the clock inside the fixture's season. Only
+ * Date is faked; timers stay real so the module's polling still works.
+ */
+const FIXTURE_SEASON_DATE = new Date("2026-01-15T12:00:00Z");
+
 beforeEach(() => {
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(FIXTURE_SEASON_DATE);
   document.documentElement.innerHTML = FIXTURE;
   const sendMessage = vi.fn(async (msg: { type: string; yahooIds?: string[] }) => {
     if (msg.type === "getPlayerStats") {
@@ -26,7 +39,10 @@ beforeEach(() => {
     sendMessage,
   };
 });
-afterEach(() => { document.body.innerHTML = ""; });
+afterEach(() => {
+  vi.useRealTimers();
+  document.body.innerHTML = "";
+});
 
 /**
  * Yahoo's fixture lands on "Stats > Today" (top tab "Stats" has the
@@ -51,30 +67,29 @@ function activateAverageStatsSeason(season: string): void {
   // Current-season sub-tab inside the Average Stats subnav: stat2=AS_<startYear>.
   const startYear = season.split("-")[0]!;
   const sub = document.querySelector<HTMLAnchorElement>(`a[href*="stat2=AS_${startYear}"]`);
-  sub?.closest("li")?.classList.add("Selected");
-}
-
-function currentSeason(): string {
-  const now = new Date();
-  const m = now.getUTCMonth();
-  const y = now.getUTCFullYear();
-  const start = m >= 6 ? y : y - 1;
-  return `${start}-${String((start + 1) % 100).padStart(2, "0")}`;
+  if (!sub) {
+    // Fail loudly. Silently skipping here just makes the module render the
+    // banner, which surfaces as a confusing "filter bar did not mount".
+    throw new Error(
+      `fixture has no Average Stats sub-tab for season ${season} (looked for stat2=AS_${startYear})`,
+    );
+  }
+  sub.closest("li")?.classList.add("Selected");
 }
 
 describe("myTeam page module", () => {
   it("mounts a banner (no filter bar) on the default Stats > Today tab", async () => {
     await run({ kind: "myTeam", leagueId: "123456" });
-    expect(document.querySelector(".fnba-banner-host")).not.toBeNull();
-    expect(document.querySelector(".fnba-bar-host")).toBeNull();
-    expect(document.querySelectorAll('th[data-fnba]').length).toBe(0);
+    expect(document.querySelector(".hoopradar-banner-host")).not.toBeNull();
+    expect(document.querySelector(".hoopradar-bar-host")).toBeNull();
+    expect(document.querySelectorAll('th[data-hoopradar]').length).toBe(0);
   });
 
   it("mounts the filter bar and injects columns once Average Stats > current season is active", async () => {
     activateAverageStatsSeason(currentSeason());
     await run({ kind: "myTeam", leagueId: "123456" });
-    expect(document.querySelector(".fnba-bar-host")).not.toBeNull();
-    expect(document.querySelector(".fnba-banner-host")).toBeNull();
-    expect(document.querySelectorAll('th[data-fnba]:not([data-fnba="group"])').length).toBe(3);
+    expect(document.querySelector(".hoopradar-bar-host")).not.toBeNull();
+    expect(document.querySelector(".hoopradar-banner-host")).toBeNull();
+    expect(document.querySelectorAll('th[data-hoopradar]:not([data-hoopradar="group"])').length).toBe(3);
   });
 });

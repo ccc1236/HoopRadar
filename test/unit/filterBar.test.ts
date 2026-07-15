@@ -20,11 +20,11 @@ describe("filter bar", () => {
     expect(sr.querySelector('button[data-role="refresh"]')).not.toBeNull();
   });
 
-  it("emits fnba-filter-change with the new selection on window change", async () => {
+  it("emits hoopradar-filter-change with the new selection on window change", async () => {
     const sr = bar.shadowRoot!;
     const sel = sr.querySelector<HTMLSelectElement>('select[data-role="window"]')!;
     const events: CustomEvent[] = [];
-    bar.addEventListener("fnba-filter-change", (e) => events.push(e as CustomEvent));
+    bar.addEventListener("hoopradar-filter-change", (e) => events.push(e as CustomEvent));
 
     sel.value = "Last5";
     sel.dispatchEvent(new Event("change"));
@@ -34,11 +34,11 @@ describe("filter bar", () => {
     expect(events[0]!.detail).toEqual({ window: "Last5", perMode: "PerGame" });
   });
 
-  it("emits fnba-filter-refresh on refresh-button click", () => {
+  it("emits hoopradar-filter-refresh on refresh-button click", () => {
     const sr = bar.shadowRoot!;
     const btn = sr.querySelector<HTMLButtonElement>('button[data-role="refresh"]')!;
     const events: Event[] = [];
-    bar.addEventListener("fnba-filter-refresh", (e) => events.push(e));
+    bar.addEventListener("hoopradar-filter-refresh", (e) => events.push(e));
     btn.click();
     expect(events).toHaveLength(1);
   });

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { renderColumns, clearFnbaCells } from "../../src/content/injectColumns.js";
+import { renderColumns, clearHoopradarCells } from "../../src/content/injectColumns.js";
 import type { PlayerStatRow } from "../../src/shared/types.js";
 
 const SAMPLE: Record<string, PlayerStatRow | null> = {
@@ -31,7 +31,7 @@ describe("renderColumns", () => {
   it("appends three advanced column headers", () => {
     const t = mkTable();
     renderColumns(t, SAMPLE);
-    const headers = Array.from(t.querySelectorAll("th[data-fnba]"));
+    const headers = Array.from(t.querySelectorAll("th[data-hoopradar]"));
     expect(headers.map((h) => h.textContent)).toEqual(["eFG%", "TS%", "USG%"]);
   });
 
@@ -39,7 +39,7 @@ describe("renderColumns", () => {
     const t = mkTable();
     renderColumns(t, SAMPLE);
     const lukaRow = t.querySelector('tr:has(a[data-ys-playerid="6014"])')!;
-    const advCells = Array.from(lukaRow.querySelectorAll("td[data-fnba]"));
+    const advCells = Array.from(lukaRow.querySelectorAll("td[data-hoopradar]"));
     expect(advCells.map((c) => c.textContent)).toEqual([".563", ".617", "36.8"]);
   });
 
@@ -47,7 +47,7 @@ describe("renderColumns", () => {
     const t = mkTable();
     renderColumns(t, SAMPLE);
     const missingRow = t.querySelector('tr:has(a[data-ys-playerid="404"])')!;
-    const advCells = Array.from(missingRow.querySelectorAll("td[data-fnba]"));
+    const advCells = Array.from(missingRow.querySelectorAll("td[data-hoopradar]"));
     expect(advCells.map((c) => c.textContent)).toEqual(["-", "-", "-"]);
   });
 
@@ -55,9 +55,9 @@ describe("renderColumns", () => {
     const t = mkTable();
     renderColumns(t, SAMPLE);
     renderColumns(t, SAMPLE);
-    expect(t.querySelectorAll("th[data-fnba]")).toHaveLength(3);
+    expect(t.querySelectorAll("th[data-hoopradar]")).toHaveLength(3);
     const lukaRow = t.querySelector('tr:has(a[data-ys-playerid="6014"])')!;
-    expect(lukaRow.querySelectorAll("td[data-fnba]")).toHaveLength(3);
+    expect(lukaRow.querySelectorAll("td[data-hoopradar]")).toHaveLength(3);
   });
 
   it("overrides Base stat cells via header-index mapping", () => {
@@ -66,7 +66,7 @@ describe("renderColumns", () => {
     const lukaRow = t.querySelector('tr:has(a[data-ys-playerid="6014"])')!;
     const ptsCell = lukaRow.children[1] as HTMLElement;
     expect(ptsCell.textContent).toContain("33.5");
-    expect(ptsCell.hasAttribute("data-fnba-override")).toBe(true);
+    expect(ptsCell.hasAttribute("data-hoopradar-override")).toBe(true);
   });
 
   it("overrides Yahoo's FTM and FTA cells (separate columns, FTA header has a trailing *)", () => {
@@ -95,16 +95,16 @@ describe("renderColumns", () => {
     const ftaCell = row.children[2] as HTMLElement;
     expect(ftmCell.textContent).toBe("6.1");
     expect(ftaCell.textContent).toBe("7.4");
-    expect(ftmCell.hasAttribute("data-fnba-override")).toBe(true);
-    expect(ftaCell.hasAttribute("data-fnba-override")).toBe(true);
+    expect(ftmCell.hasAttribute("data-hoopradar-override")).toBe(true);
+    expect(ftaCell.hasAttribute("data-hoopradar-override")).toBe(true);
   });
 
-  it("clearFnbaCells removes injected and override marks", () => {
+  it("clearHoopradarCells removes injected and override marks", () => {
     const t = mkTable();
     renderColumns(t, SAMPLE);
-    clearFnbaCells(t);
-    expect(t.querySelectorAll("[data-fnba]")).toHaveLength(0);
-    expect(t.querySelectorAll("[data-fnba-override]")).toHaveLength(0);
+    clearHoopradarCells(t);
+    expect(t.querySelectorAll("[data-hoopradar]")).toHaveLength(0);
+    expect(t.querySelectorAll("[data-hoopradar-override]")).toHaveLength(0);
   });
 
   it("adds an Advanced colspan group header when the table has two thead rows", () => {
@@ -120,7 +120,7 @@ describe("renderColumns", () => {
       </table>`;
     const t = document.querySelector("table")!;
     renderColumns(t, SAMPLE);
-    const group = t.querySelector('thead tr:first-child th[data-fnba="group"]') as HTMLTableCellElement;
+    const group = t.querySelector('thead tr:first-child th[data-hoopradar="group"]') as HTMLTableCellElement;
     expect(group).not.toBeNull();
     expect(group.textContent).toBe("Advanced");
     expect(group.colSpan).toBe(3);
@@ -129,7 +129,7 @@ describe("renderColumns", () => {
   it("does NOT add a group header when the table has only one thead row", () => {
     const t = mkTable(); // single thead row
     renderColumns(t, SAMPLE);
-    expect(t.querySelector('th[data-fnba="group"]')).toBeNull();
+    expect(t.querySelector('th[data-hoopradar="group"]')).toBeNull();
   });
 
   it("overrides the sorted column even when its header contains an icon-font sort-arrow glyph", () => {
@@ -153,7 +153,7 @@ describe("renderColumns", () => {
     const lukaRow = t.querySelector('tr:has(a[data-ys-playerid="6014"])')!;
     const ptsCell = lukaRow.children[1] as HTMLElement;
     expect(ptsCell.textContent).toContain("33.5");
-    expect(ptsCell.hasAttribute("data-fnba-override")).toBe(true);
+    expect(ptsCell.hasAttribute("data-hoopradar-override")).toBe(true);
   });
 
   it("overrides Yahoo's compound FGM/A cell as `made/attempted`", () => {
@@ -176,7 +176,7 @@ describe("renderColumns", () => {
     const lukaRow = t.querySelector('tr:has(a[data-ys-playerid="6014"])')!;
     const fgmCell = lukaRow.children[1] as HTMLElement;
     expect(fgmCell.textContent).toBe("9.9/17.4");
-    expect(fgmCell.hasAttribute("data-fnba-override")).toBe(true);
+    expect(fgmCell.hasAttribute("data-hoopradar-override")).toBe(true);
   });
 
   it("renders compound cell as `-` when both inputs are missing", () => {
@@ -212,7 +212,7 @@ describe("renderColumns", () => {
     });
     const cell = (t.querySelector("tbody tr")!.children[1] as HTMLElement);
     expect(cell.textContent).toBe("3.320");
-    expect(cell.hasAttribute("data-fnba-override")).toBe(true);
+    expect(cell.hasAttribute("data-hoopradar-override")).toBe(true);
   });
 
   it("derives FT% from rounded FTM/FTA so the visual ratio matches", () => {
@@ -233,7 +233,7 @@ describe("renderColumns", () => {
     const cell = (t.querySelector("tbody tr")!.children[1] as HTMLElement);
     // 6.1 / 7.4 = 0.8243... displays as ".824" (visual consistency over raw FT_PCT of .831).
     expect(cell.textContent).toBe(".824");
-    expect(cell.hasAttribute("data-fnba-override")).toBe(true);
+    expect(cell.hasAttribute("data-hoopradar-override")).toBe(true);
   });
 
   it("derives FG% from rounded FGM/FGA", () => {
@@ -314,11 +314,11 @@ describe("renderColumns", () => {
     const labelRow = t.querySelector("thead tr") as HTMLTableRowElement;
     expect((labelRow.lastElementChild as HTMLElement).className).toContain("Spacer");
     const headerCells = Array.from(labelRow.children);
-    expect(headerCells[headerCells.length - 2]?.getAttribute("data-fnba")).toBe("USG_PCT");
+    expect(headerCells[headerCells.length - 2]?.getAttribute("data-hoopradar")).toBe("USG_PCT");
 
     const body = t.querySelector("tbody tr") as HTMLTableRowElement;
     expect((body.lastElementChild as HTMLElement).className).toContain("Spacer");
     const bodyCells = Array.from(body.children);
-    expect(bodyCells[bodyCells.length - 2]?.getAttribute("data-fnba")).toBe("USG_PCT");
+    expect(bodyCells[bodyCells.length - 2]?.getAttribute("data-hoopradar")).toBe("USG_PCT");
   });
 });

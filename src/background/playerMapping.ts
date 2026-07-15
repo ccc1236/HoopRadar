@@ -79,7 +79,7 @@ export function buildMapping(yahoo: YahooPlayer[], nba: NbaPlayer[]): PlayerMapp
   return out;
 }
 
-const STORAGE_KEY = (season: SeasonString) => `fnba.mapping.${season}`;
+const STORAGE_KEY = (season: SeasonString) => `hoopradar.mapping.${season}`;
 
 export async function saveMapping(season: SeasonString, entries: PlayerMappingEntry[]): Promise<void> {
   await chrome.storage.local.set({ [STORAGE_KEY(season)]: entries });

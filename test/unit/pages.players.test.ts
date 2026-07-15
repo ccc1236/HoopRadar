@@ -46,20 +46,20 @@ describe("players page module", () => {
 
   it("mounts a filter bar above the stats table", async () => {
     await run({ kind: "players", leagueId: "123456" });
-    expect(document.querySelector(".fnba-bar-host")).not.toBeNull();
+    expect(document.querySelector(".hoopradar-bar-host")).not.toBeNull();
   });
 
   it("injects three new column headers (eFG%, TS%, USG%)", async () => {
     await run({ kind: "players", leagueId: "123456" });
     const headers = Array.from(
-      document.querySelectorAll('th[data-fnba]:not([data-fnba="group"])'),
+      document.querySelectorAll('th[data-hoopradar]:not([data-hoopradar="group"])'),
     ).map((h) => h.textContent);
     expect(headers).toEqual(["eFG%", "TS%", "USG%"]);
   });
 
   it("adds an Advanced colspan group header to the real Yahoo fixture", async () => {
     await run({ kind: "players", leagueId: "123456" });
-    const group = document.querySelector('th[data-fnba="group"]') as HTMLTableCellElement | null;
+    const group = document.querySelector('th[data-hoopradar="group"]') as HTMLTableCellElement | null;
     expect(group).not.toBeNull();
     expect(group!.textContent).toBe("Advanced");
     expect(group!.colSpan).toBe(3);
@@ -67,7 +67,7 @@ describe("players page module", () => {
 
   it("populates adv cells in player rows", async () => {
     await run({ kind: "players", leagueId: "123456" });
-    const advCells = document.querySelectorAll("td[data-fnba]");
+    const advCells = document.querySelectorAll("td[data-hoopradar]");
     expect(advCells.length).toBeGreaterThan(0);
   });
 });

@@ -1,5 +1,5 @@
 import { scrapePlayers, findStatsTable } from "../content/yahoo.js";
-import { renderColumns, clearFnbaCells } from "../content/injectColumns.js";
+import { renderColumns, clearHoopradarCells } from "../content/injectColumns.js";
 import { createFilterBar, type FilterBarHandle } from "../ui/filter-bar.js";
 import { createSpiderTooltipController, type SpiderTooltipHandle } from "../ui/spider-tooltip.js";
 import type { PageInfo } from "../content/pageDetect.js";
@@ -315,16 +315,16 @@ export async function run(_info: PageInfo): Promise<{ teardown: () => void }> {
     bar.setStatus(`Updated ${new Date().toLocaleTimeString()}`);
   };
 
-  bar.addEventListener("fnba-filter-change", onChange);
-  bar.addEventListener("fnba-filter-refresh", onRefresh);
+  bar.addEventListener("hoopradar-filter-change", onChange);
+  bar.addEventListener("hoopradar-filter-refresh", onRefresh);
 
   return {
     teardown: () => {
       spider.teardown();
       restoreScroll();
-      bar.removeEventListener("fnba-filter-change", onChange);
-      bar.removeEventListener("fnba-filter-refresh", onRefresh);
-      clearFnbaCells(table);
+      bar.removeEventListener("hoopradar-filter-change", onChange);
+      bar.removeEventListener("hoopradar-filter-refresh", onRefresh);
+      clearHoopradarCells(table);
       bar.remove();
     },
   };
