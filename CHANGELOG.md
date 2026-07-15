@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.2.0 - 2026-07-15
+
+Renamed from fNBA to HoopRadar. Same tool, same features; this release is the rename itself.
+
+- The extension is now "HoopRadar", shown as just the wordmark in `chrome://extensions` and the extensions menu. The name deliberately drops "NBA" to keep the listing clear of league branding.
+- Internal identifiers and storage keys moved to a `hoopradar` prefix (settings, the cached NBA player list, the Yahoo-to-NBA player mapping, and the IndexedDB stat cache).
+- Because the storage keys changed, saved settings and the cached player mapping do not carry over. Click Refresh once on a Yahoo page to rebuild the mapping.
+
 ## v0.1.0 - 2026-06-02
 
 Spider tooltip gains a click-to-open axis detail popout, plus reliability and loading-feedback improvements.
