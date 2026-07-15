@@ -2,11 +2,11 @@
  * Small notice mounted in place of the filter bar when we are on a My Team
  * sub-tab where overlaying nba.com data would step on Yahoo's authoritative
  * live numbers (e.g. Stats > Today on game days). Tells the user where
- * fNBA does activate and gives them a one-click switch.
+ * HoopRadar does activate and gives them a one-click switch.
  */
 
 const STYLES = `
-  :host, .fnba-banner-host {
+  :host, .hoopradar-banner-host {
     display: block;
     box-sizing: border-box;
     font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -46,12 +46,12 @@ export interface WrongTabBannerDeps {
 
 export function createWrongTabBanner(deps: WrongTabBannerDeps): HTMLElement {
   const host = document.createElement("div");
-  host.classList.add("fnba-banner-host");
+  host.classList.add("hoopradar-banner-host");
   const root = host.attachShadow({ mode: "open" });
   root.innerHTML = `
     <style>${STYLES}</style>
     <div class="banner">
-      <span class="brand">fNBA</span>
+      <span class="brand">HoopRadar</span>
       <span class="msg"></span>
       <button data-role="switch">Switch tab</button>
     </div>

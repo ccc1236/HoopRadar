@@ -44,7 +44,7 @@ export async function run(info: PageInfo): Promise<{ teardown: () => void }> {
     }
 
     const banner = createWrongTabBanner({
-      message: `fNBA shows on Average Stats > ${season} Season. Click to switch.`,
+      message: `HoopRadar shows on Average Stats > ${season} Season. Click to switch.`,
       onSwitchClick: () => {
         // Navigate directly to the sub-tab anchor's href. Yahoo's
         // in-page tab JS does not reliably honor a click on an anchor

@@ -1,4 +1,4 @@
-// Rasterize the fNBA logo SVGs to PNG at extension-icon sizes.
+// Rasterize the HoopRadar logo SVGs to PNG at extension-icon sizes.
 //
 // - Primary: blue-moon gradient -> public/icons/icon-{16,32,48,128}.png
 // - All colorways (blue moon, black, mint, white) -> docs/logo-samples/png/{name}-{size}.png

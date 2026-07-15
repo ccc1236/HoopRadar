@@ -68,7 +68,7 @@ describe("spider tooltip controller", () => {
   it("does not mount a card on bare mouseover before 300ms", () => {
     mouseover();
     vi.advanceTimersByTime(200);
-    expect(document.querySelector(".fnba-spider-host")).toBeNull();
+    expect(document.querySelector(".hoopradar-spider-host")).toBeNull();
   });
 
   it("mounts the card after 300ms and dispatches a fetch", async () => {
@@ -80,7 +80,7 @@ describe("spider tooltip controller", () => {
       yahooId: "5583",
       perMode: "PerGame",
     });
-    expect(document.querySelector(".fnba-spider-host")).not.toBeNull();
+    expect(document.querySelector(".hoopradar-spider-host")).not.toBeNull();
   });
 
   it("cancels the mount when mouseout happens before 300ms", () => {
@@ -88,7 +88,7 @@ describe("spider tooltip controller", () => {
     vi.advanceTimersByTime(100);
     mouseout();
     vi.advanceTimersByTime(300);
-    expect(document.querySelector(".fnba-spider-host")).toBeNull();
+    expect(document.querySelector(".hoopradar-spider-host")).toBeNull();
   });
 
   it("pinning prevents default navigation on the anchor click", () => {
@@ -100,7 +100,7 @@ describe("spider tooltip controller", () => {
   it("renders 3 data polygons after a successful fetch", async () => {
     click();
     await vi.waitFor(() => {
-      const host = document.querySelector(".fnba-spider-host");
+      const host = document.querySelector(".hoopradar-spider-host");
       expect(host?.shadowRoot?.querySelectorAll("polygon[data-role='window']").length).toBe(3);
     });
   });
@@ -108,19 +108,19 @@ describe("spider tooltip controller", () => {
   it("ESC dismisses a pinned card", async () => {
     click();
     await vi.waitFor(() => {
-      expect(document.querySelector(".fnba-spider-host")).not.toBeNull();
+      expect(document.querySelector(".hoopradar-spider-host")).not.toBeNull();
     });
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
-    expect(document.querySelector(".fnba-spider-host")).toBeNull();
+    expect(document.querySelector(".hoopradar-spider-host")).toBeNull();
   });
 
   it("opening a second pin dismisses the first", async () => {
     const row2 = makeRow("9999");
     row.table.querySelector("tbody")!.appendChild(row2.anchor.closest("tr")!);
     click();
-    await vi.waitFor(() => expect(document.querySelectorAll(".fnba-spider-host").length).toBe(1));
+    await vi.waitFor(() => expect(document.querySelectorAll(".hoopradar-spider-host").length).toBe(1));
     click(row2.anchor);
-    await vi.waitFor(() => expect(document.querySelectorAll(".fnba-spider-host").length).toBe(1));
+    await vi.waitFor(() => expect(document.querySelectorAll(".hoopradar-spider-host").length).toBe(1));
   });
 
   it("shows a 'no mapping' message when the SW responds with reason=no-mapping", async () => {
@@ -131,7 +131,7 @@ describe("spider tooltip controller", () => {
     } satisfies GetSpiderDataResponse);
     click();
     await vi.waitFor(() => {
-      const host = document.querySelector(".fnba-spider-host");
+      const host = document.querySelector(".hoopradar-spider-host");
       expect(host?.shadowRoot?.textContent ?? "").toContain("No NBA mapping");
     });
   });
@@ -145,7 +145,7 @@ describe("spider tooltip controller", () => {
 
     note.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
     vi.advanceTimersByTime(300);
-    expect(document.querySelector(".fnba-spider-host")).toBeNull();
+    expect(document.querySelector(".hoopradar-spider-host")).toBeNull();
 
     const ev = new MouseEvent("click", { bubbles: true, cancelable: true });
     note.dispatchEvent(ev);
@@ -169,16 +169,16 @@ describe("spider tooltip controller", () => {
     });
 
     click();
-    await vi.waitFor(() => expect(document.querySelector(".fnba-spider-host")).not.toBeNull());
+    await vi.waitFor(() => expect(document.querySelector(".hoopradar-spider-host")).not.toBeNull());
 
     inner.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    expect(document.querySelector(".fnba-spider-host")).not.toBeNull();
+    expect(document.querySelector(".hoopradar-spider-host")).not.toBeNull();
   });
 
   it("shows an empty detail strip on a pinned card", async () => {
     click();
     await vi.waitFor(() => {
-      const host = document.querySelector(".fnba-spider-host");
+      const host = document.querySelector(".hoopradar-spider-host");
       expect(host?.shadowRoot?.querySelector('[data-role="strip"]')).not.toBeNull();
     });
   });
@@ -186,24 +186,24 @@ describe("spider tooltip controller", () => {
   it("does not render a detail strip on a hover-preview card", () => {
     mouseover();
     vi.advanceTimersByTime(300);
-    const host = document.querySelector(".fnba-spider-host");
+    const host = document.querySelector(".hoopradar-spider-host");
     expect(host?.shadowRoot?.querySelector('[data-role="strip"]')).toBeNull();
   });
 
   function clickAxis(key: string): void {
-    const host = document.querySelector(".fnba-spider-host")!;
+    const host = document.querySelector(".hoopradar-spider-host")!;
     const hit = host.shadowRoot!.querySelector<SVGCircleElement>(`circle[data-axis-key="${key}"]`)!;
     hit.dispatchEvent(new MouseEvent("click", { bubbles: true }));
   }
   function stripText(): string {
-    const host = document.querySelector(".fnba-spider-host")!;
+    const host = document.querySelector(".hoopradar-spider-host")!;
     return host.shadowRoot!.querySelector('[data-role="strip"]')!.textContent ?? "";
   }
 
   it("populates the strip with rank, league avg, player value and percentile on axis click", async () => {
     click();
     await vi.waitFor(() => {
-      const host = document.querySelector(".fnba-spider-host");
+      const host = document.querySelector(".hoopradar-spider-host");
       expect(host).not.toBeNull();
       // wait until data polygons are rendered (renderReady has fired)
       expect(host!.shadowRoot!.querySelectorAll("polygon[data-role='window']").length).toBeGreaterThan(0);
@@ -221,7 +221,7 @@ describe("spider tooltip controller", () => {
   it("toggles the strip off when the active axis is clicked again", async () => {
     click();
     await vi.waitFor(() => {
-      const host = document.querySelector(".fnba-spider-host");
+      const host = document.querySelector(".hoopradar-spider-host");
       expect(host).not.toBeNull();
       // wait until data polygons are rendered (renderReady has fired)
       expect(host!.shadowRoot!.querySelectorAll("polygon[data-role='window']").length).toBeGreaterThan(0);
@@ -243,12 +243,12 @@ describe("spider tooltip controller", () => {
     });
     click();
     await vi.waitFor(() => {
-      const host = document.querySelector(".fnba-spider-host");
+      const host = document.querySelector(".hoopradar-spider-host");
       expect(host).not.toBeNull();
       expect(host!.shadowRoot!.querySelectorAll("polygon[data-role='window']").length).toBeGreaterThan(0);
     });
     const callsAfterFetch = send.mock.calls.length;
-    const host = document.querySelector(".fnba-spider-host")!;
+    const host = document.querySelector(".hoopradar-spider-host")!;
     const hit = host.shadowRoot!.querySelector<SVGCircleElement>(`circle[data-axis-key="PTS"]`)!;
     hit.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(host.shadowRoot!.querySelector('[data-role="strip"]')!.textContent).toContain("35th of 236"); // L5
@@ -280,12 +280,12 @@ describe("spider tooltip controller", () => {
     });
     click();
     await vi.waitFor(() => {
-      const host = document.querySelector(".fnba-spider-host");
+      const host = document.querySelector(".hoopradar-spider-host");
       expect(host).not.toBeNull();
       // wait until renderReady fires (axis-hit circles require non-null data)
       expect(host!.shadowRoot!.querySelector(`circle[data-axis-key="PTS"]`)).not.toBeNull();
     });
-    const host = document.querySelector(".fnba-spider-host")!;
+    const host = document.querySelector(".hoopradar-spider-host")!;
     host.shadowRoot!.querySelector<SVGCircleElement>(`circle[data-axis-key="PTS"]`)!
       .dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(host.shadowRoot!.querySelector('[data-role="strip"]')!.textContent).toContain("no L5 data");
@@ -294,7 +294,7 @@ describe("spider tooltip controller", () => {
   it("switches the strip content when a different axis is clicked", async () => {
     click();
     await vi.waitFor(() => {
-      const host = document.querySelector(".fnba-spider-host");
+      const host = document.querySelector(".hoopradar-spider-host");
       expect(host).not.toBeNull();
       expect(host!.shadowRoot!.querySelectorAll("polygon[data-role='window']").length).toBeGreaterThan(0);
     });
@@ -310,7 +310,7 @@ describe("spider tooltip controller", () => {
   it("keeps the strip populated after a per-mode change (refetch)", async () => {
     click();
     await vi.waitFor(() => {
-      const host = document.querySelector(".fnba-spider-host");
+      const host = document.querySelector(".hoopradar-spider-host");
       expect(host).not.toBeNull();
       expect(host!.shadowRoot!.querySelectorAll("polygon[data-role='window']").length).toBeGreaterThan(0);
     });

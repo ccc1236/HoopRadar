@@ -6,12 +6,12 @@ import type { PerModeKey, WindowKey } from "../shared/types.js";
 /**
  * Filter bar built as a plain `<div>` rather than a custom element. Some Chrome
  * MV3 content-script contexts have a non-functional `customElements` registry,
- * which broke the earlier `<fnba-filter-bar>` Web Component approach. Shadow
+ * which broke the earlier `<hoopradar-filter-bar>` Web Component approach. Shadow
  * DOM still works on plain elements, so style isolation is preserved.
  */
 
 const STYLES = `
-  :host, .fnba-bar-host {
+  :host, .hoopradar-bar-host {
     display: block;
     font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
     color: #1a1a2e;
@@ -55,9 +55,9 @@ const STYLES = `
   }
   .status[data-state="busy"] {
     opacity: 1;
-    animation: fnba-pulse 1s ease-in-out infinite;
+    animation: hoopradar-pulse 1s ease-in-out infinite;
   }
-  @keyframes fnba-pulse {
+  @keyframes hoopradar-pulse {
     0%, 100% { opacity: 0.35; }
     50% { opacity: 1; }
   }
@@ -71,13 +71,13 @@ export interface FilterBarHandle extends HTMLElement {
 /** Build the filter bar element. Async because it loads persisted settings. */
 export async function createFilterBar(): Promise<FilterBarHandle> {
   const host = document.createElement("div") as unknown as FilterBarHandle;
-  host.classList.add("fnba-bar-host");
+  host.classList.add("hoopradar-bar-host");
 
   const root = host.attachShadow({ mode: "open" });
   root.innerHTML = `
     <style>${STYLES}</style>
     <div class="bar">
-      <span class="brand">fNBA</span>
+      <span class="brand">HoopRadar</span>
       <select data-role="window">
         ${WINDOWS.map((w) => `<option value="${w.key}">${w.label}</option>`).join("")}
       </select>
@@ -102,15 +102,15 @@ export async function createFilterBar(): Promise<FilterBarHandle> {
   winSel.addEventListener("change", () => {
     settings = { ...settings, window: winSel.value as WindowKey };
     void saveSettings({ window: settings.window });
-    host.dispatchEvent(new CustomEvent("fnba-filter-change", { detail: { ...settings } }));
+    host.dispatchEvent(new CustomEvent("hoopradar-filter-change", { detail: { ...settings } }));
   });
   modeSel.addEventListener("change", () => {
     settings = { ...settings, perMode: modeSel.value as PerModeKey };
     void saveSettings({ perMode: settings.perMode });
-    host.dispatchEvent(new CustomEvent("fnba-filter-change", { detail: { ...settings } }));
+    host.dispatchEvent(new CustomEvent("hoopradar-filter-change", { detail: { ...settings } }));
   });
   refresh.addEventListener("click", () => {
-    host.dispatchEvent(new Event("fnba-filter-refresh"));
+    host.dispatchEvent(new Event("hoopradar-filter-refresh"));
   });
 
   host.getSettings = (): FilterSettings => ({ ...settings });

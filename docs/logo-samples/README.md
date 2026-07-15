@@ -1,6 +1,6 @@
-# fNBA logo
+# HoopRadar logo
 
-The fNBA mark is a top-down view of a 3-point arc with a ball at the apex, plus the hoop (donut ring) and backboard (line) at the bottom.
+The HoopRadar mark is a top-down view of a 3-point arc with a ball at the apex, plus the hoop (donut ring) and backboard (line) at the bottom.
 
 ## Primary brand color
 
