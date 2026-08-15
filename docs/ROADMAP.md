@@ -8,7 +8,7 @@ For shipped releases, see [`CHANGELOG.md`](../CHANGELOG.md).
 
 ## Pre-launch (earliest realistic date: October 2026)
 
-Status as of 2026-07-27, from a pre-launch audit. Nothing here needs code this week. The gating item is a decision, and the one after it is the calendar.
+Status as of 2026-08-15, from a pre-launch audit. Nothing here needs code this week. The gating item is a decision, and the one after it is the calendar.
 
 ### Blocking decision: nba.com access posture
 
