@@ -142,4 +142,4 @@ Do not implement deferred features without an updated spec.
 
 ## License
 
-MIT. See `LICENSE` once it is added.
+MIT. See `LICENSE`.
