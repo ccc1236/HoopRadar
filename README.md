@@ -26,7 +26,7 @@ The overlay replaces the values Yahoo displays; the page's HTML structure, sorti
 
 ## Install
 
-1. Download the latest `hoopradar-vX.Y.Z.zip` from the [releases page](https://github.com/ccc1236/HoopRadar/releases)
+1. Download the latest `hoopradar-vX.Y.Z.zip` from the [releases page](https://github.com/ccc1236/hoopradar/releases)
 2. Unzip
 3. In Chrome go to `chrome://extensions` and enable Developer mode
 4. Click "Load unpacked" and select the unzipped folder
