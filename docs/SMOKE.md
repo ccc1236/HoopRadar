@@ -1,14 +1,14 @@
-# Smoke Test — Plan 1
+# Smoke Test: Plan 1
 
 Run this manually after a `npm run build` + load-unpacked, before tagging a Plan 1 release.
 
 **About the SW console:** Chrome's DevTools may show `allow pasting` as a warning when you first paste into the console. Type the literal words `allow pasting` and press Enter once to unblock pasting for the session.
 
-**Why we don't use `chrome.runtime.sendMessage` here:** `chrome.runtime.sendMessage` called from inside the service worker itself does **not** dispatch to its own `onMessage` listener — it sends to other contexts (content scripts, popups). In Plan 1 those don't exist yet, so any `sendMessage` call from the SW console will fail with `"Could not establish connection"`. We call the handler directly via the `hoopradar` debug surface instead. The `onMessage` listener is still wired and will be exercised by Plan 2's content script.
+**Why we don't use `chrome.runtime.sendMessage` here:** `chrome.runtime.sendMessage` called from inside the service worker itself does **not** dispatch to its own `onMessage` listener; it sends to other contexts (content scripts, popups). In Plan 1 those don't exist yet, so any `sendMessage` call from the SW console will fail with `"Could not establish connection"`. We call the handler directly via the `hoopradar` debug surface instead. The `onMessage` listener is still wired and will be exercised by Plan 2's content script.
 
 ## 1. Service worker starts cleanly
 
-- Open `chrome://extensions`, find HoopRadar, click "service worker" (or "service worker (inactive)" — clicking wakes it).
+- Open `chrome://extensions`, find HoopRadar, click "service worker" (or "service worker (inactive)", clicking wakes it).
 - DevTools console: expect `[HoopRadar] service worker booted`.
 
 ## 2. nba.com/stats fetch succeeds (no mapping yet)
@@ -41,7 +41,7 @@ Expected: new network requests even if the previous Last5+Per36 call was cached.
 
 ## 4. Bad request gracefully rejected (via the message-listener path)
 
-To exercise the message-listener path (which Plan 2's content script will use), open any page where the extension's content scripts will eventually run — for v0.0.1, the simplest is to open `chrome://extensions/` itself won't work (chrome:// is privileged). Skip this step in Plan 1 smoke; it will be covered by Plan 2 once a content script exists.
+To exercise the message-listener path (which Plan 2's content script will use), open any page where the extension's content scripts will eventually run: for v0.0.1, the simplest is to open `chrome://extensions/` itself won't work (chrome:// is privileged). Skip this step in Plan 1 smoke; it will be covered by Plan 2 once a content script exists.
 
 If you want to spot-check the type guard now, call it directly:
 
@@ -52,7 +52,7 @@ const { isGetPlayerStatsRequest } = await import(
 isGetPlayerStatsRequest({ type: "garbage" }); // → false
 ```
 
-(The exact `assets/messages.js` filename may include a content hash — find it via `chrome://extensions` → HoopRadar → inspect → Sources → assets/.)
+(The exact `assets/messages.js` filename may include a content hash, find it via `chrome://extensions` → HoopRadar → inspect → Sources → assets/.)
 
 ## 5. Manual mapping smoke
 
