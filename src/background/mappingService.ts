@@ -15,14 +15,41 @@ export interface BootstrapResult {
 
 const NBA_LIST_KEY = (season: SeasonString) => `hoopradar.nbaList.${season}`;
 
+/**
+ * Cached player lists carry a fetch timestamp and expire.
+ *
+ * The season string rolls over in July, months before opening night. Until
+ * rosters go live, nba.com reports no populated TEAM_ABBREVIATION, so the
+ * parsed list comes back empty (and then partial while rosters fill in).
+ * chrome.storage has no expiry of its own, so without this the preseason
+ * snapshot would be served for the rest of the season: the extension would
+ * still show nothing on opening night, with a manual Refresh the only escape.
+ */
+const NBA_LIST_TTL_MS = 6 * 60 * 60 * 1000;
+
+interface NbaListCache {
+  fetchedAt: number;
+  list: NbaPlayer[];
+}
+
 async function loadNbaList(season: SeasonString): Promise<NbaPlayer[] | null> {
   const r = await chrome.storage.local.get(NBA_LIST_KEY(season));
   const v = r[NBA_LIST_KEY(season)];
-  return Array.isArray(v) ? (v as NbaPlayer[]) : null;
+  // Bare arrays predate the timestamp, so their age is unknowable: refetch once
+  // and let the write below migrate them to the current shape.
+  if (v === null || typeof v !== "object" || Array.isArray(v)) return null;
+  const cached = v as NbaListCache;
+  if (typeof cached.fetchedAt !== "number" || !Array.isArray(cached.list)) return null;
+  // An empty roster is never a valid in-season answer, only an upstream that is
+  // not ready yet, so it must never be mistaken for a populated cache.
+  if (cached.list.length === 0) return null;
+  if (Date.now() - cached.fetchedAt > NBA_LIST_TTL_MS) return null;
+  return cached.list;
 }
 
 async function saveNbaList(season: SeasonString, list: NbaPlayer[]): Promise<void> {
-  await chrome.storage.local.set({ [NBA_LIST_KEY(season)]: list });
+  const entry: NbaListCache = { fetchedAt: Date.now(), list };
+  await chrome.storage.local.set({ [NBA_LIST_KEY(season)]: entry });
 }
 
 /**
