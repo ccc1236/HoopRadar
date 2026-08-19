@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.2.1 - 2026-08-19
+
+Fixes a caching bug that would have left the extension blank for the whole 2026-27 season.
+
+- The cached nba.com player list could get stuck empty. The season string rolls over in July, months before opening night, and until rosters go live nba.com reports no team for any player, so the list came back empty. An empty list was mistaken for a populated cache and never refetched, which would have left every player unmapped and no stats shown once the season started. Cached lists now expire after 6 hours, and an empty list is never treated as valid.
+- Installs already holding a stuck cache repair themselves on the first run after updating. No Refresh click needed.
+- Until games are played in October there is still nothing to display. That is expected, since nba.com has no stats for a season that has not started.
+
 ## v0.2.0 - 2026-07-15
 
 Renamed from fNBA to HoopRadar. Same tool, same features; this release is the rename itself.

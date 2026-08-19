@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "HoopRadar",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Advanced stats overlay for Yahoo Fantasy Basketball.",
   "icons": {
     "16": "public/icons/icon-16.png",
