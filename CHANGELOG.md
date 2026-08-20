@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.2.2 - 2026-08-19
+
+Packaging fix: updating no longer wipes your settings.
+
+- The zip now unpacks to a folder called `hoopradar` rather than one stamped with the version. Chrome derives an unpacked extension's identity from its folder path, so a fresh folder per release meant Chrome saw an entirely new extension each time: the previous copy stayed loaded alongside it, and the new one started with empty storage, discarding saved settings and the cached Yahoo-to-NBA player mapping. Updating has quietly reset user data on every release until now.
+- One last reset with this build, because it lands at a different path than v0.2.1 did. From here on, unzip over the same folder and click reload, and your settings survive.
+- If you have several HoopRadar entries in `chrome://extensions` from earlier versions, remove all but this one. Each loaded copy injects its own filter bar and keeps its own stat cache.
+- README now says the unzipped folder has to stay put, and documents updating in place. Packaging moved into `npm run package` so releases are built the same way every time.
+
 ## v0.2.1 - 2026-08-19
 
 Fixes a caching bug that would have left the extension blank for the whole 2026-27 season.
