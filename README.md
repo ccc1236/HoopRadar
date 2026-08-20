@@ -27,9 +27,15 @@ The overlay replaces the values Yahoo displays; the page's HTML structure, sorti
 ## Install
 
 1. Download the latest `hoopradar-vX.Y.Z.zip` from the [releases page](https://github.com/ccc1236/hoopradar/releases)
-2. Unzip
+2. Unzip it somewhere permanent. Chrome loads an unpacked extension from that folder every time it starts, so the folder has to stay put. Unzipping into Downloads and tidying up later will break the extension.
 3. In Chrome go to `chrome://extensions` and enable Developer mode
-4. Click "Load unpacked" and select the unzipped folder
+4. Click "Load unpacked" and select the unzipped `hoopradar` folder
+
+### Updating
+
+Unzip the new version over the same folder, then click the reload arrow on the HoopRadar card in `chrome://extensions`.
+
+Keep the same path. Chrome derives an unpacked extension's identity from its folder path, so loading a new copy from a different location installs a second extension alongside the first and starts it with empty storage, losing your settings and cached player mapping. Every release ships with the same inner folder name (`hoopradar`) so that unzipping over the previous one is the natural thing to do.
 
 ## Development
 

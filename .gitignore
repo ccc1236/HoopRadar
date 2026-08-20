@@ -12,5 +12,8 @@ dist/
 *.crx
 *.zip
 
+# Transient staging dir used by scripts/package.mjs
+.package/
+
 # Local Claude Code session state
 .claude/
